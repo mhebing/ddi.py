@@ -1,0 +1,3 @@
+
+class DDI:
+    pass
