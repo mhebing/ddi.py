@@ -18,6 +18,7 @@ class StataReader:
         self.ddi.data = stata_file.read()
         self.ddi.metadata = self._parse_metadata(stata_file)
         stata_file.close()
+        self._add_stata_data(path)
 
     def _open_stata_file(self, path):
         stata_file = pd.read_stata(
@@ -42,6 +43,13 @@ class StataReader:
         for var in var_list:
             var["label"] = stata_file.variable_labels()[var["name"]]
         return { var["name"]: var for var in var_list }
+
+    def _add_stata_data(self, path):
+        stata_file = self._open_stata_file(path)
+        self.ddi.stata = stata_file.read(
+            convert_missing=True,
+        )
+        stata_file.close()
 
 def read_stata(path):
     """
