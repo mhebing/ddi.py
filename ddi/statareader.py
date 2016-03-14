@@ -13,6 +13,7 @@ class StataReader:
     """
     def __init__(self, path):
         """Init with a path to a Stata file."""
+        self.file_format = "Stata"
         self.ddi = DDI()
         stata_file = self._open_stata_file(path)
         self.ddi.data = stata_file.read()

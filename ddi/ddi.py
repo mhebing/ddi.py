@@ -53,3 +53,27 @@ class DDI:
         except:
             pass
         meta["statistics"] = statistics
+
+
+class Variable:
+    """
+    Variable
+    """
+    def __init__(self, data, meta):
+        self.data = data
+        self.meta = meta
+        self._set_attributes(meta)
+
+    def as_xml(self, parent):
+        xml = ET.SubElement(parent, id=self.name, sn=self.number)
+        ET.SubElement(xml, "label").text = self.label
+        cats = ET.SubElement(xml, "categories")
+        for key, val in self.categories.items():
+            ET.SubElement(cats, dict(id=key)).text = val
+
+    def _set_attributes(self, meta):
+        self.name = meta.get("name")
+        self.label = meta.get("label")
+        self.number = meta.get("number")
+        self.categories = meta.get("value_labels")
+        self.name = meta.get("name")
