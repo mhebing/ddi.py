@@ -11,4 +11,4 @@ class TestStataReader(unittest.TestCase):
             stata.data.__class__,
             pandas.core.frame.DataFrame
         )
-        self.assertTrue(len(stata.metadata) > 0)
+        self.assertTrue(len(stata.meta) > 0)

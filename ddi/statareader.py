@@ -16,7 +16,7 @@ class StataReader:
         self.ddi = DDI()
         stata_file = self._open_stata_file(path)
         self.ddi.data = stata_file.read()
-        self.ddi.metadata = self._parse_metadata(stata_file)
+        self.ddi.meta = self._parse_meta(stata_file)
         stata_file.close()
         self._add_stata_data(path)
 
@@ -29,7 +29,7 @@ class StataReader:
         )
         return stata_file
 
-    def _parse_metadata(self, stata_file):
+    def _parse_meta(self, stata_file):
         var_list = [dict(name=var, sn=sn) for sn, var in enumerate(stata_file.varlist) ]
 
         for sn, label in enumerate(stata_file.lbllist):
