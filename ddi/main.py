@@ -1,8 +1,9 @@
 import pandas as pd
 
-a = pd.read_stata("input/ah-raw.dta", index=["AHHNR"], order_categoricals=False)
-b = pd.read_stata("input/bh-raw.dta", index=["BHHNR"], order_categoricals=False)
-c = pd.read_stata("input/ch-raw.dta", index=["CHHNR"], order_categoricals=False)
+# OUTDATED
+# a = pd.read_stata("input/ah-raw.dta", index=["AHHNR"], order_categoricals=False)
+# b = pd.read_stata("input/bh-raw.dta", index=["BHHNR"], order_categoricals=False)
+# c = pd.read_stata("input/ch-raw.dta", index=["CHHNR"], order_categoricals=False)
 
 ar = pd.read_stata("input/ah-raw.dta", iterator=True, convert_categoricals=False)
 
