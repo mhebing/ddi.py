@@ -12,10 +12,12 @@ def import_tables():
     return tables
 
 def get_answers(tables):
-    answers = defaultdict(list)
+    answers = OrderedDict()
     for i, answer in tables["answers"].iterrows():
         answer = OrderedDict(answer.dropna())
         key = (answer["questionnaire"], answer["answer_list"])
+        if not key in answers:
+            answers[key] = list()
         answers[key].append(answer)
     return answers
 
@@ -24,7 +26,7 @@ def get_instruments(tables):
     instruments = OrderedDict([(x["questionnaire"], x) for x in instrument_list])
     for instrument in instruments.values():
         instrument["instrument"] = instrument["questionnaire"]
-        instrument["questions"] = defaultdict(list)
+        instrument["questions"] = OrderedDict()
     return instruments
 
 def fill_questions(tables, instruments, answers):
@@ -42,10 +44,10 @@ def fill_questions(tables, instruments, answers):
                 questions=OrderedDict(),
             )
         if not q_name in instruments[inst_name]["questions"]:
-            instruments[inst_name]["questions"][q_name] = OrderedDict(
-                question=q_name,
-                items=OrderedDict(),
-            )
+            q = OrderedDict()
+            q["question"] = q_name
+            q["items"] = OrderedDict()
+            instruments[inst_name]["questions"][q_name] = q
         try:
             key = (item["questionnaire"], item["answer_list"])
             item["answers"] = answers[key]
