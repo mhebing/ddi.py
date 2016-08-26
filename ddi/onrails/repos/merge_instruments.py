@@ -22,8 +22,16 @@ def get_answers(tables):
     return answers
 
 def get_instruments(tables):
-    instrument_list = [OrderedDict(row.dropna()) for i, row in tables["questionnaires"].iterrows()]
-    instruments = OrderedDict([(x["questionnaire"], x) for x in instrument_list])
+    instrument_list = [
+        OrderedDict(row.dropna())
+        for i, row
+        in tables["questionnaires"].iterrows()
+    ]
+    instruments = OrderedDict([
+        (x["questionnaire"], x)
+        for x
+        in instrument_list
+    ])
     for instrument in instruments.values():
         instrument["instrument"] = instrument["questionnaire"]
         instrument["questions"] = OrderedDict()
@@ -43,18 +51,21 @@ def fill_questions(tables, instruments, answers):
                 instrument=instrument_name,
                 questions=OrderedDict(),
             )
-        if not question_name in instruments[instrument_name]["questions"]:
+        instrument_questions = instruments[instrument_name]["questions"]
+        if not question_name in instrument_questions:
             question = OrderedDict()
             question["question"] = question_name
             question["items"] = OrderedDict()
-            instruments[instrument_name]["questions"][question_name] = question
+            question["sn"] = len(instrument_questions)
+            instrument_questions[question_name] = question
+        question_items = instrument_questions[question_name]["items"]
         try:
             key = (item["questionnaire"], item["answer_list"])
             item["answers"] = answers[key]
         except:
             pass
-        item["sn"] = len(question["items"])
-        instruments[instrument_name]["questions"][question_name]["items"][item_name] = item
+        item["sn"] = len(question_items)
+        question_items[item_name] = item
     return instruments
 
 def export(instruments, export_json=True, export_yaml=False):
