@@ -18,6 +18,7 @@ def get_answers(tables):
         key = (answer["questionnaire"], answer["answer_list"])
         if not key in answers:
             answers[key] = list()
+        _clean_x(answer)
         answers[key].append(answer)
     return answers
 
@@ -57,6 +58,8 @@ def fill_questions(tables, instruments, answers):
             question["question"] = question_name
             question["items"] = OrderedDict()
             question["sn"] = len(instrument_questions)
+            question["instrument"] = item["questionnaire"]
+            question["study"] = item["study"]
             instrument_questions[question_name] = question
         question_items = instrument_questions[question_name]["items"]
         try:
@@ -65,8 +68,18 @@ def fill_questions(tables, instruments, answers):
         except:
             pass
         item["sn"] = len(question_items)
+        _clean_x(item)
         question_items[item_name] = item
     return instruments
+
+def _clean_x(x):
+    del(x["study"])
+    del(x["questionnaire"])
+    if "question" in x:
+        del(x["question"])
+    if "answer_list" in x:
+        del(x["answer_list"])
+    return x
 
 def export(instruments, export_json=True, export_yaml=False):
     if export_json:
