@@ -56,6 +56,9 @@ def fill_questions(tables, instruments, answers):
         if not question_name in instrument_questions:
             question = OrderedDict()
             question["question"] = question_name
+            question["name"] = question_name
+            if not "label" in question and "text" in question:
+                question["label"] = item["text"]
             question["items"] = OrderedDict()
             question["sn"] = len(instrument_questions)
             question["instrument"] = item["questionnaire"]
@@ -75,10 +78,10 @@ def fill_questions(tables, instruments, answers):
 def _clean_x(x):
     del(x["study"])
     del(x["questionnaire"])
+    if "answer_list" in x and not "question" in x:
+        del(x["answer_list"])
     if "question" in x:
         del(x["question"])
-    if "answer_list" in x:
-        del(x["answer_list"])
     return x
 
 def export(instruments, export_json=True, export_yaml=False):
