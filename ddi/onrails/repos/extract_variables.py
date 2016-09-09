@@ -1,4 +1,4 @@
-import os, sys, glob
+import os, sys, glob, re
 import pandas as pd
 import csv
 from lxml import etree
@@ -20,11 +20,16 @@ class XmlParser:
     def _parse_xml_variable(self, xml_var):
         dataset = xml_var.get("files")
         variable = xml_var.get("ID")
+        concept = variable
+        if self.study == "gip":
+            re_result = re.findall(r'^[A-Z]{2}(.*)$', concept)
+            if len(re_result) > 0:
+                concept = re_result[0]
         self.variables.append(dict(
             study=self.study,
             dataset=dataset,
             variable=variable,
-            concept=variable,
+            concept=concept,
         ))
         self.datasets.append(dict(
             study=self.study,
@@ -32,7 +37,7 @@ class XmlParser:
         ))
         self.concepts.append(dict(
             namespace=self.study,
-            concept=variable,
+            concept=concept,
         ))
 
     def _csv_helper(self, file_name, content):
