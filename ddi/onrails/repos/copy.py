@@ -9,6 +9,7 @@ def bibtex():
 
 def r2ddi(in_path, out_path):
     os.system("""
-        mkdir -p ddionrails/r2ddi/v2013
+        rm -r ddionrails/r2ddi
+        mkdir -p ddionrails/r2ddi/
         cp -r %s %s
     """ % (in_path, out_path))
