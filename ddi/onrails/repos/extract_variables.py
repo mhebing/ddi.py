@@ -26,18 +26,19 @@ class XmlParser:
             if len(re_result) > 0:
                 concept = re_result[0]
         self.variables.append(dict(
-            study=self.study,
-            dataset=dataset,
-            variable=variable,
-            concept=concept,
+            study_name=self.study,
+            dataset_name=dataset,
+            variable_name=variable,
+            concept_namespace=self.study,
+            concept_name=concept,
         ))
         self.datasets.append(dict(
-            study=self.study,
-            dataset=dataset,
+            study_name=self.study,
+            dataset_name=dataset,
         ))
         self.concepts.append(dict(
-            namespace=self.study,
-            concept=concept,
+            concept_namespace=self.study,
+            concept_name=concept,
         ))
 
     def _csv_helper(self, file_name, content):
