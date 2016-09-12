@@ -3,6 +3,8 @@ import pandas as pd
 import csv
 from lxml import etree
 
+GIP_RE = re.compile(r'([a-z]{2})(\d{2})')
+
 class XmlParser:
 
     def __init__(self, xml_path, study_name):
@@ -22,8 +24,7 @@ class XmlParser:
         variable = xml_var.get("ID").lower()
         concept = variable
         if self.study == "gip":
-            concept = re.sub(
-                r'([a-z]{2})(\d{2})',
+            concept = GIP_RE.sub(
                 "\\1",
                 concept,
             )
