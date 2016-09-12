@@ -18,13 +18,15 @@ class XmlParser:
             self._parse_xml_variable(xml_var)
     
     def _parse_xml_variable(self, xml_var):
-        dataset = xml_var.get("files")
-        variable = xml_var.get("ID")
+        dataset = xml_var.get("files").lower()
+        variable = xml_var.get("ID").lower()
         concept = variable
         if self.study == "gip":
-            re_result = re.findall(r'^[A-Z]{2}(.*)$', concept)
-            if len(re_result) > 0:
-                concept = re_result[0]
+            concept = re.sub(
+                r'([a-z]{2})(\d{2})',
+                "\\1",
+                concept,
+            )
         self.variables.append(dict(
             study_name=self.study,
             dataset_name=dataset,
