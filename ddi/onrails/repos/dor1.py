@@ -33,3 +33,18 @@ def variables():
     x = x.ix[valid]
     lower_all_names(x)
     x.to_csv("ddionrails/variables.csv", index=False)
+
+def questions_variables():
+    x = pd.read_csv("metadata/logical_variables.csv")
+    x.rename(columns={
+        "study":"study_name",
+        "dataset":"dataset_name",
+        "variable":"variable_name",
+        "questionnaire":"instrument_name",
+        "question":"question_name"
+    }, inplace=True)
+    x = x[["study_name", "dataset_name", "variable_name", "instrument_name",
+        "question_name"]]
+    x.dropna(axis=0, how="any", inplace=True)
+    lower_all_names(x)
+    x.to_csv("ddionrails/questions_variables.csv", index=False)
