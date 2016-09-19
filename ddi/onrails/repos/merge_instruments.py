@@ -1,13 +1,29 @@
-import json
+import json, glob
 import yaml
 from collections import defaultdict, OrderedDict
 import pandas as pd
 
+def read_questions():
+    question_tables = glob.glob("metadata/*/*/questions.csv")
+    question_tables += glob.glob("metadata/questions.csv")
+    questions = pd.read_csv(question_tables.pop())
+    for table in question_tables:
+        questions.append(pd.read_csv(table))
+    return questions
+
+def read_answers():
+    answer_tables = glob.glob("metadata/*/*/answers.csv")
+    answer_tables += glob.glob("metadata/answers.csv")
+    answers = pd.read_csv(answer_tables.pop())
+    for table in answer_tables:
+        answers.append(pd.read_csv(table))
+    return answers
+
 def import_tables():
     tables = OrderedDict(
         questionnaires=pd.read_csv("metadata/questionnaires.csv"),
-        questions=pd.read_csv("metadata/questions.csv"),
-        answers=pd.read_csv("metadata/answers.csv"),
+        questions=read_questions(),
+        answers=read_answers(),
     )
     return tables
 
