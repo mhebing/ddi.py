@@ -6,9 +6,10 @@ import pandas as pd
 def read_questions():
     question_tables = glob.glob("metadata/*/*/questions.csv")
     question_tables += glob.glob("metadata/questions.csv")
+    print(question_tables)
     questions = pd.read_csv(question_tables.pop())
     for table in question_tables:
-        questions.append(pd.read_csv(table))
+        questions = questions.append(pd.read_csv(table))
     return questions
 
 def read_answers():
@@ -16,7 +17,7 @@ def read_answers():
     answer_tables += glob.glob("metadata/answers.csv")
     answers = pd.read_csv(answer_tables.pop())
     for table in answer_tables:
-        answers.append(pd.read_csv(table))
+        answers = answers.append(pd.read_csv(table))
     return answers
 
 def import_tables():
