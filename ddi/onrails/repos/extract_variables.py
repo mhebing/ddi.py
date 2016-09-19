@@ -24,10 +24,7 @@ class XmlParser:
         variable = xml_var.get("ID").lower()
         concept = variable
         if self.study == "gip":
-            concept = GIP_RE.sub(
-                "\\1",
-                concept,
-            )
+            concept = GIP_RE.sub("\\1", concept)
         self.variables.append(dict(
             study_name=self.study,
             dataset_name=dataset,

@@ -3,28 +3,19 @@ import yaml
 from collections import defaultdict, OrderedDict
 import pandas as pd
 
-def read_questions():
-    question_tables = glob.glob("metadata/*/*/questions.csv")
-    question_tables += glob.glob("metadata/questions.csv")
-    print(question_tables)
-    questions = pd.read_csv(question_tables.pop())
-    for table in question_tables:
-        questions = questions.append(pd.read_csv(table))
-    return questions
-
-def read_answers():
-    answer_tables = glob.glob("metadata/*/*/answers.csv")
-    answer_tables += glob.glob("metadata/answers.csv")
-    answers = pd.read_csv(answer_tables.pop())
-    for table in answer_tables:
-        answers = answers.append(pd.read_csv(table))
-    return answers
+def read_tables(name):
+    tables = glob.glob("metadata/*/*/%s" % name)
+    tables += glob.glob("metadata/%s" % name)
+    result = pd.read_csv(tables.pop())
+    for table in tables:
+        result = result.append(pd.read_csv(table))
+    return result
 
 def import_tables():
     tables = OrderedDict(
         questionnaires=pd.read_csv("metadata/questionnaires.csv"),
-        questions=read_questions(),
-        answers=read_answers(),
+        questions=read_tables("questions.csv"),
+        answers=read_tables("answers.csv"),
     )
     return tables
 
