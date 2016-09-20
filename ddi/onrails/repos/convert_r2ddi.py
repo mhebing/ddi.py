@@ -1,11 +1,11 @@
-import glob, re, json
+import glob, re, json, os
 import yaml
 from collections import defaultdict, OrderedDict
 from lxml import etree
 
 class Parser:
 
-    def __init__(self, xml_path, primary_language="en"):
+    def __init__(self, r2ddi_path="r2ddi", version = "v1", primary_language="en"):
         """
         The path must refer to the version, not to the language!
 
@@ -13,18 +13,21 @@ class Parser:
 
         bad: "r2ddi/v1/en"
         """
+        self.path = r2ddi_path
+        self.version = version
         self.primary_language = primary_language
-        self.path = xml_path
         self.datasets = defaultdict(OrderedDict)
+        self.run()
 
     def run(self):
         primary_names = set(glob.glob(os.path.join(
-            self.path, self.primary_language, "*.xml",
+            self.path, self.version, self.primary_language, "*.xml",
         )))
         secondary_names = set(glob.glob(os.path.join(
-            self.path, "*.xml"
+            self.path, self.version, "*", "*.xml"
         ))).intersection(primary_names)
         for file_name in primary_names:
+            print(file_name)
             self._parse_xml_file(file_name)
 
     def _parse_xml_file(self, path):
@@ -32,7 +35,7 @@ class Parser:
         for xml_var in xml_content.findall("//var"):
             self._parse_xml_var(xml_var)
 
-    def _parse_xml_var(self, xml_var)
+    def _parse_xml_var(self, xml_var):
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
         var_dict = dict(
