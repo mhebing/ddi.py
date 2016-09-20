@@ -44,12 +44,44 @@ class Parser:
             variable=variable,
             dataset=dataset,
             label=xml_var.findtext("labl"),
+            categories=self._get_categories(xml_var),
+            statistics=self._get_statistics(xml_var),
         )
         if xml_var.get("intrvl") == "labeled_numeric":
             var_dict["scale"] = "cat"
         else:
             var_dict["scale"] = ""
         self.datasets[dataset][variable] = var_dict
+
+    def _get_categories(self, xml_var):
+        result = dict(
+            frequencies=[],
+            labels=[],
+            missings=[],
+            values=[],
+        )
+        for xml_cat in xml_var.findall("catgry"):
+            try:
+                result["frequencies"].append(int(xml_cat.findtext("catStat")))
+            except:
+                result["frequencies"].append(int(0))
+            result["labels"].append(xml_cat.findtext("labl"))
+            if xml_cat.get("missing", "").lower() == "true":
+                result["missings"].append(True)
+            else:
+                result["missings"].append(False)
+            result["values"].append(xml_cat.findtext("catValu"))
+        return result
+
+    def _get_statistics(self, xml_var):
+        result = dict(
+            names=[],
+            values=[],
+        )
+        for xml_stat in xml_var.findall("sumStat"):
+            result["names"].append(xml_stat.get("type"))
+            result["values"].append(xml_stat.text)
+        return result
 
     def write_json(self):
         with open("ddionrails/datasets.json", "w") as f:
