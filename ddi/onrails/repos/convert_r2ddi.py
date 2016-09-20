@@ -27,7 +27,7 @@ class Parser:
         )))
         secondary_names = set(glob.glob(os.path.join(
             self.path, self.version, "*", "*.xml"
-        ))).intersection(primary_names)
+        ))).difference(primary_names)
         for file_name in primary_names:
             print("Read:", file_name)
             self._parse_xml_file(file_name)
