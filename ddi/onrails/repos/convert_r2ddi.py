@@ -3,6 +3,8 @@ import yaml
 from collections import defaultdict, OrderedDict
 from lxml import etree
 
+LANG_RE = re.compile(r'(\w{2})/[\w\d\-_]+.xml$', flags=re.IGNORECASE)
+
 class Parser:
 
     def __init__(self, r2ddi_path="r2ddi", version = "v1", primary_language="en"):
@@ -27,13 +29,20 @@ class Parser:
             self.path, self.version, "*", "*.xml"
         ))).intersection(primary_names)
         for file_name in primary_names:
-            print(file_name)
+            print("Read:", file_name)
             self._parse_xml_file(file_name)
+        for file_name in secondary_names:
+            print("Translate:", file_name)
+            self._parse_xml_file(file_name, translate=True)
 
-    def _parse_xml_file(self, path):
+    def _parse_xml_file(self, path, translate=False):
         xml_content = etree.parse(path)
         for xml_var in xml_content.findall("//var"):
-            self._parse_xml_var(xml_var)
+            if translate:
+                language = LANG_RE.findall(path)[0]
+                self._variable_translation(xml_var, language)
+            else:
+                self._parse_xml_var(xml_var)
 
     def _parse_xml_var(self, xml_var):
         dataset = xml_var.get("files").lower()
@@ -52,6 +61,18 @@ class Parser:
         else:
             var_dict["scale"] = ""
         self.datasets[dataset][variable] = var_dict
+
+    def _variable_translation(self, xml_var, language):
+        dataset = xml_var.get("files").lower()
+        variable = xml_var.get("ID").lower()
+        label = "label_%s" % language
+        self.datasets[dataset][variable][label] = xml_var.findtext("labl")
+        if len(xml_var.findall("catgry")) > 0:
+            self.datasets[dataset][variable]["categories"][label] = []
+        for xml_cat in xml_var.findall("catgry"):
+            self.datasets[dataset][variable]["categories"][label].append(
+                xml_cat.findtext("labl")
+            )
 
     def _get_categories(self, xml_var):
         result = dict(
