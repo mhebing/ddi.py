@@ -39,8 +39,11 @@ class Parser:
         xml_content = etree.parse(path)
         for xml_var in xml_content.findall("//var"):
             if translate:
-                language = LANG_RE.findall(path)[0]
-                self._variable_translation(xml_var, language)
+                try:
+                    language = LANG_RE.findall(path)[0]
+                    self._variable_translation(xml_var, language)
+                except:
+                    pass
             else:
                 self._parse_xml_var(xml_var)
 
