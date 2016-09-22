@@ -50,7 +50,7 @@ class Parser:
     def _parse_xml_var(self, xml_var):
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
-        var_dict = dict(
+        var_dict = OrderedDict(
             name=variable,
             name_cs=xml_var.get("ID"),
             variable=variable,
@@ -79,7 +79,7 @@ class Parser:
             )
 
     def _get_categories(self, xml_var):
-        result = dict(
+        result = OrderedDict(
             frequencies=[],
             labels=[],
             missings=[],
@@ -104,7 +104,7 @@ class Parser:
         return result
 
     def _get_statistics(self, xml_var):
-        result = dict(
+        result = OrderedDict(
             names=[],
             values=[],
         )
@@ -114,10 +114,14 @@ class Parser:
         return result
 
     def write_json(self):
-        with open("ddionrails/datasets.json", "w") as f:
-            json.dump(self.datasets, f)
+        os.system("rm -r ddionrails/datasets; mkdir -p ddionrails/datasets")
+        for dataset_name, dataset in self.datasets.items():
+            with open("ddionrails/datasets/%s.json" % dataset_name, "w") as f:
+                json.dump(dataset, f)
 
     def write_yaml(self):
-        with open("ddionrails/datasets.yaml", "w") as f:
-            yaml.dump(self.datasets, f, default_flow_style=False)
+        os.system("rm -r temp/datasets; mkdir -p temp/datasets")
+        for dataset_name, dataset in self.datasets.items():
+            with open("temp/datasets/%s.yaml" % dataset_name, "w") as f:
+                yaml.dump(dataset, f, default_flow_style=False)
         
