@@ -55,7 +55,7 @@ class Parser:
             name_cs=xml_var.get("ID"),
             variable=variable,
             dataset=dataset,
-            label=xml_var.findtext("labl"),
+            label=xml_var.findtext("labl", default=""),
             categories=self._get_categories(xml_var),
             statistics=self._get_statistics(xml_var),
         )
@@ -69,12 +69,13 @@ class Parser:
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
         label = "label_%s" % language
-        self.datasets[dataset][variable][label] = xml_var.findtext("labl")
+        labels = "labels_%s" % language
+        self.datasets[dataset][variable][label] = xml_var.findtext("labl", default="")
         if len(xml_var.findall("catgry")) > 0:
-            self.datasets[dataset][variable]["categories"][label] = []
+            self.datasets[dataset][variable]["categories"][labels] = []
         for xml_cat in xml_var.findall("catgry"):
-            self.datasets[dataset][variable]["categories"][label].append(
-                xml_cat.findtext("labl")
+            self.datasets[dataset][variable]["categories"][labels].append(
+                xml_cat.findtext("labl", default="")
             )
 
     def _get_categories(self, xml_var):
@@ -89,12 +90,17 @@ class Parser:
                 result["frequencies"].append(int(xml_cat.findtext("catStat")))
             except:
                 result["frequencies"].append(int(0))
-            result["labels"].append(xml_cat.findtext("labl"))
             if xml_cat.get("missing", "").lower() == "true":
                 result["missings"].append(True)
             else:
                 result["missings"].append(False)
-            result["values"].append(xml_cat.findtext("catValu"))
+            value = xml_cat.findtext("catValu")
+            result["values"].append(value)
+            label = xml_cat.findtext("labl")
+            if label:
+                result["labels"].append(label)
+            else:
+                result["labels"].append(value)
         return result
 
     def _get_statistics(self, xml_var):
