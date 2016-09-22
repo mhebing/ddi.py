@@ -1,6 +1,6 @@
 import glob, re, json, os
 import yaml
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 from lxml import etree
 
 LANG_RE = re.compile(r'(\w{2})/[\w\d\-_]+.xml$', flags=re.IGNORECASE)
@@ -18,7 +18,7 @@ class Parser:
         self.path = r2ddi_path
         self.version = version
         self.primary_language = primary_language
-        self.datasets = defaultdict(OrderedDict)
+        self.datasets = OrderedDict()
         self.run()
 
     def run(self):
@@ -50,19 +50,20 @@ class Parser:
     def _parse_xml_var(self, xml_var):
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
-        var_dict = OrderedDict(
-            name=variable,
-            name_cs=xml_var.get("ID"),
-            variable=variable,
-            dataset=dataset,
-            label=xml_var.findtext("labl", default=""),
-            categories=self._get_categories(xml_var),
-            statistics=self._get_statistics(xml_var),
-        )
+        var_dict = OrderedDict()
+        var_dict["name"] = variable
+        var_dict["name_cs"] = xml_var.get("ID")
+        var_dict["variable"] = variable
+        var_dict["dataset"] = dataset
+        var_dict["label"] = xml_var.findtext("labl", default="")
+        var_dict["categories"] = self._get_categories(xml_var)
+        var_dict["statistics"] = self._get_statistics(xml_var)
         if xml_var.get("intrvl") == "labeled_numeric":
             var_dict["scale"] = "cat"
         else:
             var_dict["scale"] = ""
+        if not dataset in self.datasets.keys():
+            self.datasets[dataset] = OrderedDict()
         self.datasets[dataset][variable] = var_dict
 
     def _variable_translation(self, xml_var, language):
@@ -79,12 +80,11 @@ class Parser:
             )
 
     def _get_categories(self, xml_var):
-        result = OrderedDict(
-            frequencies=[],
-            labels=[],
-            missings=[],
-            values=[],
-        )
+        result = OrderedDict()
+        result["frequencies"] = []
+        result["labels"] = []
+        result["missings"] = []
+        result["values"] = []
         for xml_cat in xml_var.findall("catgry"):
             try:
                 result["frequencies"].append(int(xml_cat.findtext("catStat")))
@@ -104,10 +104,9 @@ class Parser:
         return result
 
     def _get_statistics(self, xml_var):
-        result = OrderedDict(
-            names=[],
-            values=[],
-        )
+        result = OrderedDict()
+        result["names"] = []
+        result["values"] = []
         for xml_stat in xml_var.findall("sumStat"):
             result["names"].append(xml_stat.get("type"))
             result["values"].append(xml_stat.text)
