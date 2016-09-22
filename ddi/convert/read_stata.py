@@ -28,7 +28,7 @@ def cat_values(var, varscale, df_data, data):
     for v,l in value_labels.items():
         cat_dict.append(
             dict(
-                value = v,
+                value = int(v),
                 label = l
                 )
             )
