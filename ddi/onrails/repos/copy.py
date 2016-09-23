@@ -1,6 +1,9 @@
 import os
 import pandas as pd
 
+def f(filename):
+    os.system("cp metadata/%s ddionrails" % filename)
+
 def study():
     os.system("cp metadata/study.md ddionrails")
 
