@@ -1,3 +1,4 @@
+from scipy.stats import gaussian_kde
 import re, os
 import json, yaml
 import numpy as np
@@ -158,31 +159,21 @@ def uni_number(elem, file_csv):
 
     if elem["name"] == "weight":
         missings["weighted"] = missings["frequencies"][:]
+    
+    # density          
+    
+    temp_array = []
+    for num in df_nomis:
+        if num>=0:
+            temp_array.append(num)
+            
+    NUM_ELEMENTS = len(temp_array)
 
-    # density (placeholder)
-    if max - min > 0:
-        by = (max-min)/5
-        x = min
-        while(x < max):
-            count = 0
-            y = x + by
-                
-            for index, value in enumerate(df_nomis):
-                if value >= x and value < y:
-                    count += 1
-                elif round(y) == max and value == max:
-                    count += 1
-            x = y
-                
-            density.append(count)
-
-    else:
-        by = 0
-        count = 0
-        for index, value in enumerate(df_nomis):
-            if value >= 0:
-                count += 1
-                density.append(count)
+    density_range = np.linspace(min, max, NUM_ELEMENTS)
+    density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
+    
+    by = float(density_range[1]-density_range[0])
+    density = density_temp.tolist()
 
     # weighted placeholder
     weighted = density[:]
