@@ -112,7 +112,7 @@ def uni_string(elem, file_csv):
 
     return string_dict
 
-def uni_number(elem, file_csv):
+def uni_number(elem, file_csv, num_density_elements=20):
     df_nomis, df_mis = get_dataframes(elem, file_csv)
 
     # missings
@@ -166,10 +166,8 @@ def uni_number(elem, file_csv):
     for num in df_nomis:
         if num>=0:
             temp_array.append(num)
-            
-    NUM_ELEMENTS = len(temp_array)
 
-    density_range = np.linspace(min, max, NUM_ELEMENTS)
+    density_range = np.linspace(min, max, num_density_elements)
     density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
     
     by = float(density_range[1]-density_range[0])
