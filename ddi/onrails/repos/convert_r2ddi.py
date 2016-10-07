@@ -116,7 +116,7 @@ class Parser:
         os.system("rm -r ddionrails/datasets; mkdir -p ddionrails/datasets")
         for dataset_name, dataset in self.datasets.items():
             with open("ddionrails/datasets/%s.json" % dataset_name, "w") as f:
-                json.dump(dataset, f)
+                json.dump(dataset, f, indent=2)
 
     def write_yaml(self):
         os.system("rm -r temp/datasets; mkdir -p temp/datasets")
