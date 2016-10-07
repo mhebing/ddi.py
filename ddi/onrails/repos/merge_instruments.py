@@ -65,7 +65,7 @@ def fill_questions(tables, instruments, answers):
             question = OrderedDict()
             question["question"] = question_name
             question["name"] = question_name
-            if not "label" in question and "text" in question:
+            if not "label" in question and "text" in item:
                 question["label"] = item["text"]
             question["items"] = OrderedDict()
             question["sn"] = len(instrument_questions)
