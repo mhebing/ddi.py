@@ -1,3 +1,4 @@
+import os
 import json, glob
 import yaml
 from collections import defaultdict, OrderedDict
@@ -92,13 +93,23 @@ def _clean_x(x):
         del(x["question"])
     return x
 
+def write_json(instruments):
+    os.system("rm -r ddionrails/instruments; mkdir -p ddionrails/instruments")
+    for instrument_name, instrument in instruments.items():
+        with open("ddionrails/instruments/%s.json" % instrument_name, "w") as f:
+            json.dump(instrument, f, indent=2)
+
+def write_yaml(instruments):
+    os.system("rm -r temp/instruments; mkdir -p temp/instruments")
+    for instrument_name, instrument in instruments.items():
+        with open("temp/instruments/%s.yaml" % instrument_name, "w") as f:
+            yaml.dump(instrument, f, default_flow_style=False)
+
 def export(instruments, export_json=True, export_yaml=False):
     if export_json:
-        with open("ddionrails/instruments.json", "w") as f:
-            json.dump(instruments, f)
+        write_json(instruments)
     if export_yaml:
-        with open("ddionrails/instruments.yaml", "w") as f:
-            yaml.dump(instruments, f, default_flow_style=False)
+        write_yaml(instruments)
 
 def main(export_json=True, export_yaml=False):
     tables = import_tables()
