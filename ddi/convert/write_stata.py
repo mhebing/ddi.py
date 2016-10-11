@@ -6,6 +6,7 @@ import numpy as np
 
 def save_do(output_do, do):
 
+    print("write \"" + output_do + "\"")
     with open(os.path.join(output_do), "w") as field1:
         field1.write(do)
 
