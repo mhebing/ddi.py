@@ -286,21 +286,35 @@ def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
         stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json)
     return stat_dict
 
-def generate_stat(dataset_name, d, m):
+def generate_stat(dataset_name, d, m, vistest):
     stat = []
     for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
         stat.append(
             stat_dict(dataset_name, elem, d, m)
         )
+        if vistest!="":
+            # Test for Visualization
+            write_vistest(stat[-1], dataset_name, elem["name"], vistest)
+                
     return stat
     
-def write_stats(data, metadata, filename, file_type="json"):
+def write_vistest(stat, dataset_name, var_name, vistest):
+    vistest_name = "".join((dataset_name, "_", var_name, ".json"))
+    print("write \"" + vistest_name + "\" in \"" + vistest + "\"")
+    if not os.path.exists(vistest):
+        os.makedirs(vistest)
+    with open("".join((vistest, vistest_name)), "w") as json_file:
+        json.dump(stat, json_file, indent=2)
+    
+def write_stats(data, metadata, filename, file_type="json", vistest=""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
-    stat = generate_stat(dataset_name, data, metadata)
+    stat = generate_stat(dataset_name, data, metadata, vistest)
     if file_type == "json":
+        print("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:
             json.dump(stat, json_file, indent=2)
     elif file_type == "yaml":
+        print("write \"" + filename + "\"")
         with open(filename, 'w') as yaml_file:
             yaml_file.write(yaml.dump(stat, default_flow_style=False))
     else:
