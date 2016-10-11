@@ -7,15 +7,15 @@ def cat_values(var, varscale, df_data, data):
     cat_dict = []
 
     '''
-    create df without missings
-    4294967293 == [-3] nicht valide
-    4294967294 == [-2] trifft nicht zu
-    4294967295 == [-1] keine Angabe
+    old imports of negative values:
+    2^32-3 = 4294967293 == [-3] nicht valide
+    2^32-2 = 4294967294 == [-2] trifft nicht zu
+    2^32-1 = 4294967295 == [-1] keine Angabe
     '''
     df_nomis = df_data[var["name"]].copy()
 
     for index, value in enumerate(df_nomis):
-        if isinstance(value, str)==False and value < 0 or value == 4294967293 or value == 4294967294 or value == 4294967295:
+        if isinstance(value, str)==False and value < 0:
             df_nomis[index] = np.nan
 
     label_dict = data.value_labels()
@@ -40,7 +40,9 @@ def scale_var(var, varscale, df_data):
     if varscale["name"] != "":
         return "cat"
     var_type = str(df_data[var["name"]].dtype)
-    if var_type == "float32" or var_type == "float64" or var_type == "int32" or var_type == "int8":
+    match_float = re.search("float\d*", var_type)
+    match_int = re.search("int\d*", var_type)
+    if match_float or match_int:
         var_type = "number"
     if var_type == "object":
         var_type = "string"
