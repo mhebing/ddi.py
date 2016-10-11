@@ -299,7 +299,7 @@ def write_stats(data, metadata, filename, file_type="json"):
     stat = generate_stat(dataset_name, data, metadata)
     if file_type == "json":
         with open(filename, 'w') as json_file:
-            json.dump(stat, json_file)
+            json.dump(stat, json_file, indent=2)
     elif file_type == "yaml":
         with open(filename, 'w') as yaml_file:
             yaml_file.write(yaml.dump(stat, default_flow_style=False))
