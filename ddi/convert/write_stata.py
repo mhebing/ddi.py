@@ -20,6 +20,6 @@ def generate_do(data_name, file_csv, file_json):
     return meta
     
 def write_stata(d, m, output_do):
-    data_name = re.search('^.*\/(.*)', output_do).group(1)
+    data_name = re.sub(".do", ".csv", re.search('^.*\/(.*)', output_do).group(1))
     do = generate_do(data_name, d, m)
     save_do(output_do, do)
