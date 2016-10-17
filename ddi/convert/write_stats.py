@@ -114,6 +114,10 @@ def uni_string(elem, file_csv):
 
 def uni_number(elem, file_csv, num_density_elements=20):
     df_nomis, df_mis = get_dataframes(elem, file_csv)
+    
+    if df_nomis.dtype == "object" or df_mis.dtype == "object":
+        df_nomis = pd.to_numeric(df_nomis)
+        df_mis = pd.to_numeric(df_mis)
 
     # missings
     missing_index, missing_value, missing_label = get_missing_codes()
@@ -161,7 +165,7 @@ def uni_number(elem, file_csv, num_density_elements=20):
         missings["weighted"] = missings["frequencies"][:]
     
     # density          
-    
+
     temp_array = []
     for num in df_nomis:
         if num>=0:
@@ -206,7 +210,6 @@ def uni(elem, scale, file_csv, file_json):
     statistics = {}
    
     if elem["type"] == "cat":
-        
         cat_dict = uni_cat(elem, file_csv)
 
         statistics.update(
@@ -264,8 +267,49 @@ def bi(base, elem, scale, file_csv, file_json, split=["split"]):
             bi[s].update(dict(
                 label = temp["label"],
                 categories = categories,
-            ))
+                ))    
+                
+    '''
+    bi = dict()
+    
+    for x in split:
+        try:
+            for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
+                print(temp["name"])
+        except:
+            print("[Error] " + x + " not found in dataset")
+        
+        bi[x] = dict()
+        categories = dict()
+        label = "xy"
+    
+        if elem["type"] == "number":
+            min = 0
+            max = 1
+            by = 1
+            
 
+            bi[x].update(dict(
+                categories = categories,
+                label = label,
+                min = min,
+                max = max,
+                by = by,
+                ))
+        
+        elif elem["type"] == "cat":
+            values = []
+            missings = []
+            labels = []
+        
+            bi[x].update(dict(
+                categories = categories,
+                label = label,
+                values = values,
+                missings = missings,
+                labels = labels,
+                ))
+    '''
 
     return bi
 
@@ -289,8 +333,9 @@ def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
 def generate_stat(dataset_name, d, m, vistest):
     stat = []
     for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
+        temp = d.copy()
         stat.append(
-            stat_dict(dataset_name, elem, d, m)
+            stat_dict(dataset_name, elem, temp, m)
         )
         if vistest!="":
             # Test for Visualization
