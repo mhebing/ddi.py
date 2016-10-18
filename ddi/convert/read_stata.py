@@ -99,8 +99,8 @@ def parse_dataset(data, stata_name):
     d = data.read()
 
     vars = [dict(name=var, sn=sn) for sn, var in enumerate(data.varlist) ]
-    varlabels = [dict(name=varlabel, sn=sn) for sn, varlabel in enumerate(data.vlblist) ]
-    varscale = [dict(name=varscale, sn=sn) for sn, varscale in enumerate(data.lbllist) ]
+    varlabels = [dict(name=varlabel, sn=sn) for sn, varlabel in enumerate(data.variable_labels()) ]
+    varscale = [dict(name=varscale, sn=sn) for sn, varscale in enumerate(data.value_labels()) ]
     
     dta_file = re.search('^.*\/(.*)', stata_name).group(1)
     m = generate_tdp(vars, varlabels, varscale, dta_file, d, data)
