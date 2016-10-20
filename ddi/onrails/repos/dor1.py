@@ -48,3 +48,16 @@ def questions_variables():
     x.dropna(axis=0, how="any", inplace=True)
     lower_all_names(x)
     x.to_csv("ddionrails/questions_variables.csv", index=False)
+
+def concepts_questions():
+    x = pd.read_csv("metadata/questions.csv")
+    x.rename(columns={
+        "study":"study_name",
+        "questionnaire":"instrument_name",
+        "question":"question_name",
+        "concept":"concept_name",
+    }, inplace=True)
+    x = x[["study_name", "instrument_name", "question_name", "concept_name"]]
+    x.dropna(axis=0, how="any", inplace=True)
+    lower_all_names(x)
+    x.to_csv("ddionrails/concepts_questions.csv", index=False)
