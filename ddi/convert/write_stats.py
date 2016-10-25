@@ -268,48 +268,6 @@ def bi(base, elem, scale, file_csv, file_json, split=["split"]):
                 label = temp["label"],
                 categories = categories,
                 ))    
-                
-    '''
-    bi = dict()
-    
-    for x in split:
-        try:
-            for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
-                print(temp["name"])
-        except:
-            print("[Error] " + x + " not found in dataset")
-        
-        bi[x] = dict()
-        categories = dict()
-        label = "xy"
-    
-        if elem["type"] == "number":
-            min = 0
-            max = 1
-            by = 1
-            
-
-            bi[x].update(dict(
-                categories = categories,
-                label = label,
-                min = min,
-                max = max,
-                by = by,
-                ))
-        
-        elif elem["type"] == "cat":
-            values = []
-            missings = []
-            labels = []
-        
-            bi[x].update(dict(
-                categories = categories,
-                label = label,
-                values = values,
-                missings = missings,
-                labels = labels,
-                ))
-    '''
 
     return bi
 

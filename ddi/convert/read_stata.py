@@ -12,7 +12,7 @@ def cat_values(var, varscale, df_data, data):
     2^32-2 = 4294967294 == [-2] trifft nicht zu
     2^32-1 = 4294967295 == [-1] keine Angabe
     '''
-    df_nomis = df_data[var["name"]].copy()
+    df_nomis = df_data[var].copy()
 
     for index, value in enumerate(df_nomis):
         if isinstance(value, str)==False and value < 0:
@@ -39,7 +39,7 @@ def cat_values(var, varscale, df_data, data):
 def scale_var(var, varscale, df_data):
     if varscale["name"] != "":
         return "cat"
-    var_type = str(df_data[var["name"]].dtype)
+    var_type = str(df_data[var].dtype)
     match_float = re.search("float\d*", var_type)
     match_int = re.search("int\d*", var_type)
     if match_float or match_int:
@@ -54,11 +54,11 @@ def generate_tdp(vars, varlabels, varscale, dta_file, df_data, data):
     tdp = {}
     fields = []
     
-    for var, varlabel, varscale in zip(vars, varlabels, varscale):
+    for var, varscale in zip(vars, varscale):
         scale = scale_var(var, varscale, df_data)
         meta = dict(
-            name = var["name"],
-            label = varlabel["name"],
+            name = var,
+            label = varlabels[var],
             type = scale,
             )
         if scale == "cat":
@@ -98,9 +98,15 @@ def parse_dataset(data, stata_name):
     # transform StataReader Object
     d = data.read()
 
-    vars = [dict(name=var, sn=sn) for sn, var in enumerate(data.varlist) ]
-    varlabels = [dict(name=varlabel, sn=sn) for sn, varlabel in enumerate(data.variable_labels()) ]
-    varscale = [dict(name=varscale, sn=sn) for sn, varscale in enumerate(data.value_labels()) ]
+    # vars = [dict(name=var, sn=sn) for sn, var in enumerate(data.varlist) ]
+    vars = data.varlist
+    
+    # Import 
+    # varlabels = [dict(name=data.variable_labels()[varlabel], sn=sn) for sn, varlabel in enumerate(data.variable_labels()) ]
+    varlabels = data.variable_labels()
+    
+    varscale = [dict(name=varscale, sn=sn) for sn, varscale in enumerate(data.lbllist) ]
+    # varvalues = data.value_labels()
     
     dta_file = re.search('^.*\/(.*)', stata_name).group(1)
     m = generate_tdp(vars, varlabels, varscale, dta_file, d, data)
