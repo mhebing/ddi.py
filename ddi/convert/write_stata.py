@@ -4,6 +4,26 @@ import re
 import pandas as pd
 import numpy as np
 
+template = """
+clear
+set more off
+capture log close
+import delimited ../input/{{ data_name }}, varnames(1) clear
+/*
+drop v1
+*/
+
+{% for x in input_list %}
+label variable {{ x["name"].lower() }} "{{ x["label"] }}"
+{% if x["type"] == "cat" %}
+{% for y in x["values"] %}
+label define {{ x["name"].lower() }}_label {{ y["value"] }} "{{ y["label"] }}", add
+{% endfor %}
+label values {{ x["name"].lower() }} {{ x["name"].lower() }}_label
+{% endif %}
+{% endfor %}
+"""
+
 def save_do(output_do, do):
 
     print("write \"" + output_do + "\"")
