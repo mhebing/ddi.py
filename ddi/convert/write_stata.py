@@ -4,7 +4,7 @@ import re
 import pandas as pd
 import numpy as np
 
-template = """
+template_do = """
 clear
 set more off
 capture log close
@@ -31,8 +31,7 @@ def save_do(output_do, do):
         field1.write(do)
 
 def generate_do(data_name, file_csv, file_json):
-    with open("script/template.do", "r") as f:
-        template = Template(f.read())
+    template = Template(template_do)
     meta = template.render(
         input_list=file_json["resources"][0]["schema"]["fields"],
         data_name=data_name,

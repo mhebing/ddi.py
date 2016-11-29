@@ -1,9 +1,118 @@
 from scipy.stats import gaussian_kde
+from jinja2 import Template
 import re, os
 import json, yaml
 import numpy as np
 import pandas as pd
     
+template_stats="""
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Statistics {{stat[0]["dataset"]}}</title>
+    </head>
+    <body>
+        <header>
+            <h1>Statistics for Dataset {{stat[0]["dataset"]}}</h1>
+        </header>
+        <main>
+            {% for var in stat %}
+                <h2>{{var["variable"]}}</h2>
+                <table>
+                    <tr>
+                        <td>variable name:</td>
+                        <td>{{var["variable"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>variable label:</td>
+                        <td>{{var["label"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>scale:</td>
+                        <td>{{var["scale"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>study:</td>
+                        <td>{{var["study"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>dataset:</td>
+                        <td>{{var["dataset"]}}</td>
+                    </tr>
+                </table>
+                
+                
+                {% if var["scale"] == "cat" %}
+                    <h3>Univariate Statistics</h3>
+                    <table border = "1">
+                        <thead>
+                            <tr>
+                                <th>Value Labels</th>
+                                <th>Values</th>
+                                <th>Missings</th>
+                                <th>Frequencies</th>
+                                <th>Weighted Frequencies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(var["uni"]["frequencies"]|length) %}
+                                <tr>
+                                    <td>{{var["uni"]["labels"][i]}}</td>
+                                    <td>{{var["uni"]["values"][i]}}</td>
+                                    <td>{{var["uni"]["missings"][i]}}</td>
+                                    <td>{{var["uni"]["frequencies"][i]}}</td>
+                                    <td>{{var["uni"]["weighted"][i]}}</td>
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                    <h3>Bivariate Statistics</h3>
+                {% endif %}
+                
+                
+                {% if var["scale"] == "str" %}
+                    <h3>Univariate Statistics</h3>
+                    <table>
+                        <tr>
+                            <td>Frequencies:</td>
+                            <td>{{var["uni"]["frequencies"][0]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Missings:</td>
+                            <td>{{var["uni"]["missings"][0]}}</td>
+                        </tr>
+                    </table>
+                {% endif %}
+                
+                {% if var["scale"] == "num" %}
+                    <h3>Univariate Statistics</h3>
+                    <table>
+                        <tr>
+                            <td>Minimum:</td>
+                            <td>{{var["uni"]["min"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum:</td>
+                            <td>{{var["uni"]["max"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Valid:</td>
+                            <td>{{var["uni"]["valid"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Missings:</td>
+                            <td>{{var["uni"]["missing"][0]}}</td>
+                        </tr>
+                    </table>
+                {% endif %}
+                ----------------------------------------------------------------
+            {% endfor %}         
+        </main>
+    </body>
+</html>
+"""    
+
 def get_missing_codes():
     missing_index = [0,1,2]
     missing_value = [-3,-2,-1]
@@ -320,5 +429,14 @@ def write_stats(data, metadata, filename, file_type="json", vistest=""):
         print("write \"" + filename + "\"")
         with open(filename, 'w') as yaml_file:
             yaml_file.write(yaml.dump(stat, default_flow_style=False))
+    elif file_type == "html":
+        template = Template(template_stats)
+        stats_html = template.render(
+            stat=stat,
+            )
+        print("write \"" + filename + "\"")
+        Html_file= open(filename,"w")
+        Html_file.write(stats_html)
+        Html_file.close()
     else:
         print("[ERROR] Unknown file type.")
