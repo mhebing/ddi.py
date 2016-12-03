@@ -1,8 +1,10 @@
 import os
 import pandas as pd
 
-def f(filename):
-    os.system("cp metadata/%s ddionrails" % filename)
+def f(filename, target = None):
+    if not target:
+        target = filename
+    os.system("cp metadata/%s ddionrails/%s" % (filename, target))
 
 def study():
     os.system("cp metadata/study.md ddionrails")
