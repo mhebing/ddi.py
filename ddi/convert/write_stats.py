@@ -10,6 +10,7 @@ template_stats="""
 <html>
     <head>
         <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <title>Statistics {{stat[0]["dataset"]}}</title>
     </head>
     <body>
@@ -19,7 +20,7 @@ template_stats="""
         <main>
             {% for var in stat %}
                 <h2>{{var["variable"]}}</h2>
-                <table>
+                <table class="table table-striped" style="width: 25%;">
                     <tr>
                         <td>variable name:</td>
                         <td>{{var["variable"]}}</td>
@@ -45,7 +46,7 @@ template_stats="""
                 
                 {% if var["scale"] == "cat" %}
                     <h3>Univariate Statistics</h3>
-                    <table border = "1">
+                    <table class="table table-striped" style="width: 50%;">
                         <thead>
                             <tr>
                                 <th>Value Labels</th>
