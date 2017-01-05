@@ -14,7 +14,7 @@ def dict_metadata(metadata):
         var_metadata["%s" % temp["name"]] = temp
     return var_metadata    
 
-def test_a_unique(dataset, metadata):
+def test_unique(dataset, metadata):
     '''
     Test on duplicates in all number variables with unique=1
     '''
@@ -38,20 +38,7 @@ def test_a_unique(dataset, metadata):
     print("ok")  
 
 
-def test_b_uniqueid_notnull(dataset, metadata):
-    '''
-    Test on missings in the id column.
-    '''
-    print("Running ID not Null Check...")
-    id_col = dataset["id"]
-    mis_lines = []
-    for row, mis in id_col.isnull().iteritems():
-        if mis == True:
-            mis_lines.append(row+2)
-    assert len(id_col.index[id_col.isnull()]) == 0, "ID column contains Missings in line(s) %s" % mis_lines
-    print("ok")        
-       
-def test_c_validage(dataset, metadata):
+def test_range(dataset, metadata):
     '''
     Test on duplicates in the id column.
     '''
@@ -76,7 +63,7 @@ def test_c_validage(dataset, metadata):
 
     print("ok")
         
-def test_d_validsex(dataset, metadata):
+def test_values(dataset, metadata):
     print("Running Sex Check...")
     
     var_metadata = dict_metadata(metadata)    

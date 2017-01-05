@@ -3,8 +3,8 @@ from ddi.convert.read_stata import read_stata
 from ddi.convert.write_stats import write_stats
 from ddi.convert.write_tdp import write_tdp
 from ddi.convert.write_stata import write_stata
-from ddi.tests.test_values import *
-import unittest
+import ddi.tests.test_values as test_values
+import re
 
 class Dataset:
 
@@ -28,15 +28,11 @@ class Dataset:
         write_stata(self.dataset, self.metadata, output_name)
         
     def test(self):
-        y = [
-            test_a_unique,
-            test_b_uniqueid_notnull,
-            test_c_validage,
-            test_d_validsex,
-        ]
-        for x in y:
-            try:
-                x(self.dataset, self.metadata)
-            except AssertionError as error:
-                print("[ERROR]", error)
+        for func in dir(test_values):
+            if(re.search("^test_.*", func)!=None):
+                func = getattr(test_values, func)
+                try:
+                    func(self.dataset, self.metadata)
+                except AssertionError as error:
+                    print("[ERROR]", error)
 
