@@ -28,7 +28,15 @@ class Dataset:
         write_stata(self.dataset, self.metadata, output_name)
         
     def test(self):
-        test_a_unique(self.dataset, self.metadata)
-        test_b_uniqueid_notnull(self.dataset, self.metadata)
-        test_c_validage(self.dataset, self.metadata)
-        test_d_validsex(self.dataset, self.metadata)
+        y = [
+            test_a_unique,
+            test_b_uniqueid_notnull,
+            test_c_validage,
+            test_d_validsex,
+        ]
+        for x in y:
+            try:
+                x(self.dataset, self.metadata)
+            except AssertionError as error:
+                print("[ERROR]", error)
+
