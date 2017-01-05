@@ -3,6 +3,8 @@ from ddi.convert.read_stata import read_stata
 from ddi.convert.write_stats import write_stats
 from ddi.convert.write_tdp import write_tdp
 from ddi.convert.write_stata import write_stata
+from ddi.tests.test_values import *
+import unittest
 
 class Dataset:
 
@@ -24,3 +26,9 @@ class Dataset:
         
     def write_stata(self, output_name):
         write_stata(self.dataset, self.metadata, output_name)
+        
+    def test(self):
+        test_a_unique(self.dataset, self.metadata)
+        test_b_uniqueid_notnull(self.dataset, self.metadata)
+        test_c_validage(self.dataset, self.metadata)
+        test_d_validsex(self.dataset, self.metadata)
