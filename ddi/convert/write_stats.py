@@ -284,6 +284,8 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     missing = []
 
     # min and max
+    min = 0
+    max = 0
     try:
         min = int(df_nomis.min())
         max = int(df_nomis.max())
@@ -351,7 +353,7 @@ def uni(elem, scale, file_csv, file_json):
     statistics = {}
     
     # name of the weight variable:
-    var_weight = "weight"
+    var_weight = ""
    
     if elem["type"] == "cat":
         cat_dict = uni_cat(elem, file_csv, var_weight)
