@@ -7,26 +7,31 @@ LANG_RE = re.compile(r'(\w{2})/[\w\d\-_]+.xml$', flags=re.IGNORECASE)
 
 class Parser:
 
-    def __init__(self, r2ddi_path="r2ddi", version = "v1", primary_language="en"):
+    def __init__(self, r2ddi_path="r2ddi", version=None, primary_language="en",
+                 versions=["v1"], latest_version="v1"):
         """
-        The path must refer to the version, not to the language!
-
-        good: "r2ddi/v1"
-
-        bad: "r2ddi/v1/en"
+        The ``version`` option is now DEPRECATED, pleas use the combination of
+        ``versions`` (list) and ``latest_version`` from now on.
         """
         self.path = r2ddi_path
-        self.version = version
+        self.versions = versions
+        self.latest_version = latest_version
+
+        # Temporary fix for the deprecated version option:
+        if version:
+            self.versions = [version]
+            self.latest_version = version
+
         self.primary_language = primary_language
         self.datasets = OrderedDict()
         self.run()
 
     def run(self):
         primary_names = set(glob.glob(os.path.join(
-            self.path, self.version, self.primary_language, "*.xml",
+            self.path, self.latest_version, self.primary_language, "*.xml",
         )))
         secondary_names = set(glob.glob(os.path.join(
-            self.path, self.version, "*", "*.xml"
+            self.path, self.latest_version, "*", "*.xml"
         ))).difference(primary_names)
         for file_name in primary_names:
             print("Read:", file_name)
@@ -43,7 +48,7 @@ class Parser:
                     language = LANG_RE.findall(path)[0]
                     self._variable_translation(xml_var, language)
                 except:
-                    pass
+                    print("[ERROR] Failed to parse translation for %s" % path)
             else:
                 self._parse_xml_var(xml_var)
 
