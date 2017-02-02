@@ -240,32 +240,38 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     missing = []
 
     # min and max
-    min_val = min(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
-    max_val = max(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
-    
-    
-    # density          
-    temp_array = []
-    for num in file_csv[elem["name"]]:
-        if num>=0:
-            temp_array.append(num)
-
-    density_range = np.linspace(min_val, max_val, num_density_elements)
     try:
-        density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
-        by = float(density_range[1]-density_range[0])
-        density = density_temp.tolist()
+        min_val = min(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
+        max_val = max(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
+
+        # density          
+        temp_array = []
+        for num in file_csv[elem["name"]]:
+            if num>=0:
+                temp_array.append(num)
+
+        density_range = np.linspace(min_val, max_val, num_density_elements)
+        try:
+            density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
+            by = float(density_range[1]-density_range[0])
+            density = density_temp.tolist()
+        except:
+            by = 0
+            density = []
+
+        # tranform to percentage
+        '''
+        x = sum(density)
+        for i, c in enumerate(density):
+            density[i] = density[i]/x
+        '''
+        
     except:
+        min_val = []
+        max_val = []
         by = 0
         density = []
 
-    # tranform to percentage
-    '''
-    x = sum(density)
-    for i, c in enumerate(density):
-        density[i] = density[i]/x
-    '''    
-    
     # missings
     for i in file_csv[elem["name"]].unique():
         if i<0:
