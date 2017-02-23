@@ -248,7 +248,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         temp_array = []
         for num in file_csv[elem["name"]]:
             if num>=0:
-                temp_array.append(num)
+                temp_array.append(float(num))
 
         density_range = np.linspace(min_val, max_val, num_density_elements)
         try:
@@ -276,7 +276,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     for i in file_csv[elem["name"]].unique():
         if i<0:
             missings["frequencies"].append(file_csv[elem["name"]].value_counts()[i].astype(np.float64))
-            missings["values"].append(i)
+            missings["values"].append(float(i))
             # missings["labels"].append.... # there are no labels for missings in numeric variables 
     missing.append(sum(missings["frequencies"]))
     
@@ -329,7 +329,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             cat_dict
         )
-
+    
     elif elem["type"] == "string":
 
         string_dict = uni_string(elem, file_csv)
@@ -337,7 +337,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             string_dict
         )
-
+    
     elif elem["type"] == "number": 
 
         number_dict = uni_number(elem, file_csv, var_weight)
@@ -345,7 +345,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             number_dict
         )
-
+    
     return statistics
 
 def bi(base, elem, scale, file_csv, file_json, split=["split"]):
