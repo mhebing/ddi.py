@@ -29,7 +29,10 @@ def variables():
         "variable":"variable_name",
         "concept":"concept_name",
     }, inplace=True)
-    valid = x.ix[ : , ("study_name", "dataset_name", "variable_name")].duplicated() == False
+    valid = x.ix[ : , (
+        "study_name", "dataset_name", "variable_name",
+        "label", "description", "description_long"
+    )].duplicated() == False
     x = x.ix[valid]
     lower_all_names(x)
     x.to_csv("ddionrails/variables.csv", index=False)
