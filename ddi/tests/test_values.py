@@ -14,7 +14,7 @@ def dict_metadata(metadata):
         var_metadata["%s" % temp["name"]] = temp
     return var_metadata    
 
-def test_a_unique(dataset, metadata):
+def test_unique(dataset, metadata):
     '''
     Test on duplicates in all number variables with unique=1
     '''
@@ -38,62 +38,60 @@ def test_a_unique(dataset, metadata):
     print("ok")  
 
 
-def test_b_uniqueid_notnull(dataset, metadata):
-    '''
-    Test on missings in the id column.
-    '''
-    print("Running ID not Null Check...")
-    id_col = dataset["id"]
-    mis_lines = []
-    for row, mis in id_col.isnull().iteritems():
-        if mis == True:
-            mis_lines.append(row+2)
-    assert len(id_col.index[id_col.isnull()]) == 0, "ID column contains Missings in line(s) %s" % mis_lines
-    print("ok")        
-       
-def test_c_validage(dataset, metadata):
+def test_range(dataset, metadata):
     '''
     Test on duplicates in the id column.
     '''
-    print("Running Age Check...")
+    print("Running Range Check...")
     
-    var_metadata = dict_metadata(metadata)    
-      
-    age_col = dataset["age"] 
-    min = var_metadata["age"]["range"][0]
-    max = var_metadata["age"]["range"][1]
+    var_metadata = dict_metadata(metadata)
+    error = [] 
      
-    age_val = []
-    age_row = []
-    for row, val in age_col.iteritems():
-        if val in range(min, max):
-            pass
-        else:
-            age_val.append(val)
-            age_row.append(row+2)
-                
-    assert age_col.between(min, max).all(), "Invalid age(s) %s in line(s) %s" % (age_val, age_row)
+    for name in var_metadata:
+        if(var_metadata[name]["type"]=="number" and "range" in var_metadata[name]):  
+            var_col = dataset[name] 
+            min = var_metadata[name]["range"][0]
+            max = var_metadata[name]["range"][1]
+     
+            var_val = []
+            var_row = []
+            for row, val in var_col.iteritems():
+                if val in range(min, max):
+                    pass
+                else:
+                    var_val.append(val)
+                    var_row.append(row+2)
+            
+            if len(var_val)>0:    
+                error.append("The variable %s contains value(s) %s out of range in line(s) %s" %(name, var_val, var_row))
+    assert len(error)==0, "%s" % (error)
 
     print("ok")
         
-def test_d_validsex(dataset, metadata):
-    print("Running Sex Check...")
+def test_values(dataset, metadata):
+    print("Running Value Check...")
     
     var_metadata = dict_metadata(metadata)    
+    error = []
     
-    sex_values = []
-    for val in var_metadata["sex"]["values"]:
-        sex_values.append(val["value"])
+    for name in var_metadata:
+        if(var_metadata[name]["type"]=="cat" and "values" in var_metadata[name]): 
+            values = []
+            for val in var_metadata["sex"]["values"]:
+                values.append(val["value"])
        
-    sex_inv_value = []
-    sex_inv_row = []
-    for row, val in dataset["sex"].iteritems():
-        if val in sex_values:
-            pass
-        else:
-            sex_inv_value.append(val)
-            sex_inv_row.append(row+2)
+            inv_value = []
+            inv_row = []
+            for row, val in dataset["sex"].iteritems():
+                if val in values:
+                    pass
+                else:
+                    inv_value.append(val)
+                    inv_row.append(row+2)
+            if len(inv_value)>0:
+                error.append("The variable %s contains undefined value(s) %s in line(s) %s" %(name, inv_value, inv_row))                    
+                    
 
-    assert len(sex_values) == len(dataset["sex"].unique()), "Undefined value(s) %s in line(s) %s" % (sex_inv_value, sex_inv_row)   
+    assert len(error)==0, "%s" % (error)   
         
     print("ok")

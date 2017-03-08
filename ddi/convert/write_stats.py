@@ -149,55 +149,29 @@ def get_dataframes(elem, file_csv):
     return df_nomis, df_mis
    
 def uni_cat(elem, file_csv, var_weight):
-    df_nomis, df_mis = get_dataframes(elem, file_csv)
-    
-    # missings
-    missing_index, missing_value, missing_label = get_missing_codes()
-    missing_count = df_mis.value_counts() 
 
     frequencies = []
     values = []
     missings = []
     labels = []
-    
-    if var_weight != "":
-        weighted = []
-        
-        # weighted frequencies
-        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
-        
-        for index in missing_index:
-            try:
-                weighted.append(int(f_w[missing_value[index]]))
-            except:
-                weighted.append(0)                
-        
-        for index, value in enumerate(elem["values"]):
-            try:
-                weighted.append(int(f_w[value["value"]]))
-            except:
-                weighted.append(0)
-            
-       
-    for index in missing_index:
-        try:
-            frequencies.append(int(missing_count[missing_value[index]]))
-        except:
-            frequencies.append(0)
-        labels.append(missing_label[index])
-        missings.append("true")  
-        values.append(missing_value[index])
 
-    # loop for value codes
-    value_count = df_nomis.value_counts()
+    value_count = file_csv[elem["name"]].value_counts()
     for index, value in enumerate(elem["values"]):
         try:
             frequencies.append(int(value_count[value["value"]]))
         except:
             frequencies.append(0)
         labels.append(value["label"])
-        missings.append("false") 
+        if value["value"]>=0:
+            missings.append("false")
+        else:
+            missings.append("true")
         values.append(value["value"]) 
+        
+    '''
+    missing_count = sum(i<0 for i in file_csv[elem["name"]])
+    print(elem["name"])
+    '''
 
     cat_dict = dict(
         frequencies = frequencies,
@@ -205,20 +179,27 @@ def uni_cat(elem, file_csv, var_weight):
         missings = missings,
         labels = labels,
         )
+        
+    # weighted
+    weighted = []
     if var_weight != "":
+        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
+        for index, value in enumerate(elem["values"]):
+            try:
+                weighted.append(int(f_w[value["value"]]))
+            except:
+                weighted.append(0)
         cat_dict["weighted"] = weighted
-
+    
     return cat_dict
 
 def uni_string(elem, file_csv):
-    df_nomis, df_mis = get_dataframes(elem, file_csv)
-
     frequencies = []
     missings = []
 
-    len_unique = len(df_mis.unique())
+    len_unique = len(file_csv[elem["name"]].unique())
     len_missing = 0
-    for i in df_mis.unique():
+    for i in file_csv[elem["name"]].unique():
         if "-1" in str(i):
             len_unique-=1
             len_missing+=1
@@ -243,15 +224,8 @@ def uni_string(elem, file_csv):
     return string_dict
 
 def uni_number(elem, file_csv, var_weight, num_density_elements=20):
-    df_nomis, df_mis = get_dataframes(elem, file_csv)
-    
-    if df_nomis.dtype == "object" or df_mis.dtype == "object":
-        df_nomis = pd.to_numeric(df_nomis)
-        df_mis = pd.to_numeric(df_mis)
-
-    # missings
-    missing_index, missing_value, missing_label = get_missing_codes()
-    missing_count = df_mis.value_counts()
+    if file_csv[elem["name"]].dtype == "object" or file_csv[elem["name"]].dtype == "object":
+        file_csv[elem["name"]] = pd.to_numeric(file_csv[elem["name"]])
 
     #missings        
     missings = dict(
@@ -260,24 +234,6 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         values=[],
     )
     
-    if var_weight != "":
-        missings["weighted"] = []
-        weighted = []
-        
-        # weighted missings
-        if elem["name"] != var_weight:
-            f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
-
-        for index in missing_index:
-            try:
-                missings["weighted"].append(int(f_w[missing_value[index]]))
-            except:
-                missings["weighted"].append(0)
-
-        if elem["name"] == var_weight:
-            missings["weighted"] = missings["frequencies"][:]
-            
-            
     density = []
     total = []
     valid = []
@@ -285,55 +241,69 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     # min and max
     try:
-        min = int(df_nomis.min())
-        max = int(df_nomis.max())
-    except:
-        pass
-    
-    for index in missing_index:
+        min_val = min(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
+        max_val = max(i for i in file_csv[elem["name"]] if i>=0).astype(np.float64)
+
+        # density          
+        temp_array = []
+        for num in file_csv[elem["name"]]:
+            if num>=0:
+                temp_array.append(float(num))
+
+        density_range = np.linspace(min_val, max_val, num_density_elements)
         try:
-            missings["frequencies"].append(int(missing_count[missing_value[index]]))
+            density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
+            by = float(density_range[1]-density_range[0])
+            density = density_temp.tolist()
         except:
-            missings["frequencies"].append(0) 
-        missings["labels"].append(missing_label[index])  
-        missings["values"].append(missing_value[index])   
-    missing.append(sum(missings["frequencies"]))
-    
-    # density          
+            by = 0
+            density = []
 
-    temp_array = []
-    for num in df_nomis:
-        if num>=0:
-            temp_array.append(num)
-
-    density_range = np.linspace(min, max, num_density_elements)
-    try:
-        density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
-        by = float(density_range[1]-density_range[0])
-        density = density_temp.tolist()
+        # tranform to percentage
+        '''
+        x = sum(density)
+        for i, c in enumerate(density):
+            density[i] = density[i]/x
+        '''
+        
     except:
+        min_val = []
+        max_val = []
         by = 0
         density = []
 
-    # tranform to percentage
-    '''
-    x = sum(density)
-    for i, c in enumerate(density):
-        density[i] = density[i]/x
-    '''
+    # missings
+    for i in file_csv[elem["name"]].unique():
+        if i<0:
+            missings["frequencies"].append(file_csv[elem["name"]].value_counts()[i].astype(np.float64))
+            missings["values"].append(float(i))
+            # missings["labels"].append.... # there are no labels for missings in numeric variables 
+    missing.append(sum(missings["frequencies"]))
     
     if var_weight != "":
+        weighted = []
         # weighted placeholder
         weighted = density[:]
-       
+        
+        # weighted missings
+        if elem["name"] != var_weight:
+            missings["weighted"] = []
+            f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
+
+        for i in missings["values"]:
+            try:
+                missings["weighted"].append(int(f_w[i]))
+            except:
+                missings["weighted"].append(0)
+    
     # total and valid
     total = int(file_csv[elem["name"]].size)
     valid = total - int(file_csv[elem["name"]].isnull().sum())
 
     number_dict = dict(
         density = density,
-        min = min,
-        max = max,
+        min = min_val,
+        max = max_val,
         by = by,
         total = total,
         valid = valid,
@@ -359,7 +329,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             cat_dict
         )
-
+    
     elif elem["type"] == "string":
 
         string_dict = uni_string(elem, file_csv)
@@ -367,7 +337,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             string_dict
         )
-
+    
     elif elem["type"] == "number": 
 
         number_dict = uni_number(elem, file_csv, var_weight)
@@ -375,7 +345,7 @@ def uni(elem, scale, file_csv, file_json):
         statistics.update(
             number_dict
         )
-
+    
     return statistics
 
 def bi(base, elem, scale, file_csv, file_json, split=["split"]):
@@ -415,6 +385,7 @@ def bi(base, elem, scale, file_csv, file_json, split=["split"]):
 
     return bi
 
+
 def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
     scale = elem["type"][0:3]
 
@@ -430,6 +401,7 @@ def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
         )
     if elem["name"] in base:
         stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json)
+
     return stat_dict
 
 def generate_stat(dataset_name, d, m, vistest):
