@@ -30,9 +30,12 @@ class Parser:
         primary_names = set(glob.glob(os.path.join(
             self.path, self.latest_version, self.primary_language, "*.xml",
         )))
+        print(primary_names)
         secondary_names = set(glob.glob(os.path.join(
             self.path, self.latest_version, "*", "*.xml"
         ))).difference(primary_names)
+        primary_names = sorted(primary_names)
+        secondary_names = sorted(secondary_names)
         for file_name in primary_names:
             print("Read:", file_name)
             self._parse_xml_file(file_name)
