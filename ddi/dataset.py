@@ -7,6 +7,15 @@ import ddi.tests.test_values as test_values
 import re
 
 class Dataset:
+    """
+    TODO Documentation of the entire class including example
+    
+    Example::
+        
+        dataset = Dataset()
+        dataset.read_stata("../data/dataset.dta")
+        dataset.write_stats("../output/dataset.json")
+    """
 
     def __init__(self):
         self.dataset = None
