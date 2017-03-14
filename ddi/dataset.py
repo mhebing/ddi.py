@@ -27,8 +27,8 @@ class Dataset:
     def read_stata(self, dta_name):
         self.dataset, self.metadata = read_stata(dta_name)
     
-    def write_stats(self, output_name, file_type="json"):
-        write_stats(self.dataset, self.metadata, output_name, file_type=file_type)
+    def write_stats(self, output_name, file_type="json", split="", weight=""):
+        write_stats(self.dataset, self.metadata, output_name, file_type=file_type, split=split, weight=weight)
         
     def write_tdp(self, output_csv, output_json):
         write_tdp(self.dataset, self.metadata, output_csv, output_json)

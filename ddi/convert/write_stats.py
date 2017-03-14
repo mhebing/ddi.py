@@ -316,12 +316,11 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     return number_dict
 
-def uni(elem, scale, file_csv, file_json):
+def uni(elem, scale, file_csv, file_json, var_weight):
 
     statistics = {}
     
-    # name of the weight variable:
-    var_weight = "weight"
+    # weight variable is just one variable
    
     if elem["type"] == "cat":
         cat_dict = uni_cat(elem, file_csv, var_weight)
@@ -348,8 +347,9 @@ def uni(elem, scale, file_csv, file_json):
     
     return statistics
 
-def bi(base, elem, scale, file_csv, file_json, split=["split"]):
-    # split variable for bi-variate analysis
+def bi(base, elem, scale, file_csv, file_json, split, weight):
+    # split: variable for bi-variate analysis
+    # base: variable for bi-variate analysis (every variable except split)
     categories = dict()
 
     for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
@@ -363,17 +363,17 @@ def bi(base, elem, scale, file_csv, file_json, split=["split"]):
                 for row in temp_csv.iterrows():
                     if temp_csv[s][row[0]] != v:
                         temp_csv.ix[row[0], base] = np.nan
-                categories[v] = uni(elem, scale, temp_csv, file_json)
+                categories[v] = uni(elem, scale, temp_csv, file_json, weight)
                 categories[v]["label"] = temp["values"][index]["label"]
 
                 if elem["type"] == "cat":
-                    uni_source = uni(elem, scale, file_csv, file_json)
+                    uni_source = uni(elem, scale, file_csv, file_json, weight)
                     for i in ["values", "missings", "labels"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
 
                 elif elem["type"] == "number":
-                    uni_source = uni(elem, scale, file_csv, file_json)
+                    uni_source = uni(elem, scale, file_csv, file_json, weight)
                     for i in ["min", "max", "by"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
@@ -386,10 +386,8 @@ def bi(base, elem, scale, file_csv, file_json, split=["split"]):
     return bi
 
 
-def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
+def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
     scale = elem["type"][0:3]
-
-    # base variable for bi-variate analysis
 
     stat_dict = dict(
         study = "testsuite",
@@ -397,19 +395,19 @@ def stat_dict(dataset_name, elem, file_csv, file_json, base = ["a1", "c1"]):
         variable = elem["name"],
         label = elem["label"],
         scale = scale,
-        uni = uni(elem, scale, file_csv, file_json),
+        uni = uni(elem, scale, file_csv, file_json, weight),
         )
-    if elem["name"] in base:
-        stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json)
+    if elem["name"] not in split and split!="":
+        stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json, split, weight)
 
     return stat_dict
 
-def generate_stat(dataset_name, d, m, vistest):
+def generate_stat(dataset_name, d, m, vistest, split, weight):
     stat = []
     for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
         temp = d.copy()
         stat.append(
-            stat_dict(dataset_name, elem, temp, m)
+            stat_dict(dataset_name, elem, temp, m, split, weight)
         )
         if vistest!="":
             # Test for Visualization
@@ -425,9 +423,9 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     with open("".join((vistest, vistest_name)), "w") as json_file:
         json.dump(stat, json_file, indent=2)
     
-def write_stats(data, metadata, filename, file_type="json", vistest=""):
+def write_stats(data, metadata, filename, file_type="json", split="", weight="", vistest=""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
-    stat = generate_stat(dataset_name, data, metadata, vistest)
+    stat = generate_stat(dataset_name, data, metadata, vistest, split, weight)
     if file_type == "json":
         print("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:
