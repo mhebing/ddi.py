@@ -391,7 +391,7 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
 
     stat_dict = dict(
         study = "testsuite",
-        dataset = dataset_name,
+        dataset = file_json["name"],
         variable = elem["name"],
         label = elem["label"],
         scale = scale,
