@@ -397,7 +397,7 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
         scale = scale,
         uni = uni(elem, scale, file_csv, file_json, weight),
         )
-    if elem["name"] not in split and split!="":
+    if elem["name"] not in split and split!=[np.nan]:
         stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json, split, weight)
 
     return stat_dict
@@ -425,6 +425,7 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     
 def write_stats(data, metadata, filename, file_type="json", split="", weight="", vistest=""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
+    split = [split]
     stat = generate_stat(dataset_name, data, metadata, vistest, split, weight)
     if file_type == "json":
         print("write \"" + filename + "\"")    
