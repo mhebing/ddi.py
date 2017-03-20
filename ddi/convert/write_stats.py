@@ -243,17 +243,24 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
             bi = dict()
             bi[s] = dict()
             if temp["type"] == "number":
-                list = file_csv[elem["name"]]
+                list = file_csv[temp["name"]].unique()
             else:
                 list = temp["values"]
             for index, value in enumerate(list):
-                v = value["value"]
+                try:
+                    v = value["value"]
+                except:
+                    v = value
+                print(v)
                 temp_csv = file_csv.copy()
                 for row in temp_csv.iterrows():
                     if temp_csv[s][row[0]] != v:
                         temp_csv.ix[row[0], base] = np.nan
                 categories[v] = uni(elem, scale, temp_csv, file_json, weight)
-                categories[v]["label"] = temp["values"][index]["label"]
+                try:
+                    categories[v]["label"] = temp["values"][index]["label"]
+                except:
+                    categories[v]["label"] = value
 
                 if elem["type"] == "cat":
                     uni_source = uni(elem, scale, file_csv, file_json, weight)
