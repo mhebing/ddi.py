@@ -242,7 +242,11 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
             s = temp["name"]
             bi = dict()
             bi[s] = dict()
-            for index, value in enumerate(temp["values"]):
+            if temp["type"] == "number":
+                list = file_csv[elem["name"]]
+            else:
+                list = temp["values"]
+            for index, value in enumerate(list):
                 v = value["value"]
                 temp_csv = file_csv.copy()
                 for row in temp_csv.iterrows():
