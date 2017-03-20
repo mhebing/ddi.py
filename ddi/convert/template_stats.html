@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <title>Statistics {{stat[0]["dataset"]}}</title>
+    </head>
+    <body>
+        <header>
+            <h1>Statistics for Dataset {{stat[0]["dataset"]}}</h1>
+        </header>
+        <main>
+            {% for var in stat %}
+                <h2>{{var["variable"]}}</h2>
+                <table class="table table-striped" style="width: 25%;">
+                    <tr>
+                        <td>variable name:</td>
+                        <td>{{var["variable"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>variable label:</td>
+                        <td>{{var["label"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>scale:</td>
+                        <td>{{var["scale"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>study:</td>
+                        <td>{{var["study"]}}</td>
+                    </tr>
+                    <tr>
+                        <td>dataset:</td>
+                        <td>{{var["dataset"]}}</td>
+                    </tr>
+                </table>
+                
+                
+                {% if var["scale"] == "cat" %}
+                    <h3>Univariate Statistics</h3>
+                    <table class="table table-striped" style="width: 50%;">
+                        <thead>
+                            <tr>
+                                <th>Value Labels</th>
+                                <th>Values</th>
+                                <th>Missings</th>
+                                <th>Frequencies</th>
+                                {% if var["uni"]["weighted"] is defined %}
+                                    <th>Weighted Frequencies</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(var["uni"]["frequencies"]|length) %}
+                                <tr>
+                                    <td>{{var["uni"]["labels"][i]}}</td>
+                                    <td>{{var["uni"]["values"][i]}}</td>
+                                    <td>{{var["uni"]["missings"][i]}}</td>
+                                    <td>{{var["uni"]["frequencies"][i]}}</td>
+                                    {% if var["uni"]["weighted"] is defined %}
+                                        <td>{{var["uni"]["weighted"][i]}}</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                    <h3>Bivariate Statistics</h3>
+                {% endif %}
+                
+                
+                {% if var["scale"] == "str" %}
+                    <h3>Univariate Statistics</h3>
+                    <table>
+                        <tr>
+                            <td>Frequencies:</td>
+                            <td>{{var["uni"]["frequencies"][0]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Missings:</td>
+                            <td>{{var["uni"]["missings"][0]}}</td>
+                        </tr>
+                    </table>
+                {% endif %}
+                
+                {% if var["scale"] == "num" %}
+                    <h3>Univariate Statistics</h3>
+                    <table>
+                        <tr>
+                            <td>Minimum:</td>
+                            <td>{{var["uni"]["min"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum:</td>
+                            <td>{{var["uni"]["max"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Valid:</td>
+                            <td>{{var["uni"]["valid"]}}</td>
+                        </tr>
+                        <tr>
+                            <td>Missings:</td>
+                            <td>{{var["uni"]["missing"][0]}}</td>
+                        </tr>
+                    </table>
+                {% endif %}
+                <hr />
+            {% endfor %}         
+        </main>
+    </body>
+</html>
