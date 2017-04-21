@@ -9,29 +9,6 @@ cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 templatepath = cur_dir + "/convert/template_stats.html"
 template_stats = "\"\"\"" + open(templatepath).read() + "\"\"\""
-
-def get_dataframes(elem, file_csv):
-    #create df without missings    
-    df_nomis = file_csv[elem["name"]].copy()
-    
-    #create df with only missings
-    df_mis = file_csv[elem["name"]].copy()
-
-    for index, value in enumerate(df_nomis):
-        try:
-            if int(value) < 0: 
-                df_nomis[index] = np.nan
-        except:
-            pass
- 
-    for index, value in enumerate(df_mis):
-        try:
-            if int(value) >= 0:
-                df_mis[index] = np.nan
-        except:
-            pass
-
-    return df_nomis, df_mis
    
 def uni_cat(elem, file_csv, var_weight):
 
@@ -297,9 +274,8 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
 def generate_stat(dataset_name, d, m, vistest, split, weight):
     stat = []
     for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
-        temp = d.copy()
         stat.append(
-            stat_dict(dataset_name, elem, temp, m, split, weight)
+            stat_dict(dataset_name, elem, d, m, split, weight)
         )
         if vistest!="":
             # Test for Visualization
