@@ -250,12 +250,8 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
                 try:
                     v = value["value"]
                 except:
-                    v = value
-                print(v)
-                temp_csv = file_csv.copy()
-                for row in temp_csv.iterrows():
-                    if temp_csv[s][row[0]] != v:
-                        temp_csv.ix[row[0], base] = np.nan
+                    v = value 
+                temp_csv = file_csv.ix[file_csv[s] == v]
                 categories[v] = uni(elem, scale, temp_csv, file_json, weight)
                 try:
                     categories[v]["label"] = temp["values"][index]["label"]
