@@ -2,20 +2,26 @@ import glob, re, json, os
 import yaml
 from collections import OrderedDict
 from lxml import etree
+import pandas as pd
 
 LANG_RE = re.compile(r'(\w{2})/[\w\d\-_]+.xml$', flags=re.IGNORECASE)
 
 class Parser:
 
-    def __init__(self, r2ddi_path="r2ddi", version=None, primary_language="en",
-                 versions=["v1"], latest_version="v1"):
+    def __init__(self, study_name, r2ddi_path="r2ddi", version=None, primary_language="en",
+                 versions=["v1"], latest_version="v1",
+                 datasets_csv=None):
         """
         The ``version`` option is now DEPRECATED, pleas use the combination of
         ``versions`` (list) and ``latest_version`` from now on.
         """
+        self.study_name = study_name
         self.path = r2ddi_path
         self.versions = versions
         self.latest_version = latest_version
+        self.datasets_csv = None
+        if datasets_csv:
+            self._read_datasets_csv(datasets_csv)
 
         # Temporary fix for the deprecated version option:
         if version:
@@ -59,6 +65,7 @@ class Parser:
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
         var_dict = OrderedDict()
+        var_dict["study"] = self.study_name
         var_dict["name"] = variable
         var_dict["name_cs"] = xml_var.get("ID")
         var_dict["variable"] = variable
@@ -72,7 +79,23 @@ class Parser:
             var_dict["scale"] = ""
         if not dataset in self.datasets.keys():
             self.datasets[dataset] = OrderedDict()
+        if self.datasets_csv is not None:
+            self._parse_dataset(var_dict)
         self.datasets[dataset][variable] = var_dict
+
+    def _parse_dataset(self, var_dict):
+        try:
+            d = self.datasets_csv.ix[
+                self.datasets_csv.dataset_name == var_dict["dataset"]
+            ].iloc[0]
+            var_dict["analysis_unit"] = d.get("analysis_unit_name")
+            var_dict["sub_type"] = d.get("conceptual_dataset_name")
+            try:
+                var_dict["period"] = "%.0f" % d.get("period_name")
+            except:
+                pass
+        except:
+            pass
 
     def _variable_translation(self, xml_var, language):
         dataset = xml_var.get("files").lower()
@@ -131,4 +154,10 @@ class Parser:
         for dataset_name, dataset in self.datasets.items():
             with open("temp/datasets/%s.yaml" % dataset_name, "w") as f:
                 yaml.dump(dataset, f, default_flow_style=False)
-        
+
+    def _read_datasets_csv(self, path):
+        self.datasets_csv = pd.read_csv(path)
+
+
+
+
