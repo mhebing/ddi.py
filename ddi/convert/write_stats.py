@@ -228,7 +228,6 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
                     v = value["value"]
                 except:
                     v = value 
-                v = str(v)
                 temp_csv = file_csv.ix[file_csv[s] == v]
                 categories[v] = uni(elem, scale, temp_csv, file_json, weight)
                 try:
@@ -247,6 +246,8 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
                     for i in ["min", "max", "by"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
+
+                categories = { str(key): value for key, value in categories.items() }
 
             bi[s].update(dict(
                 label = temp["label"],
