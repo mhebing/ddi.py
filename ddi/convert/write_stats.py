@@ -220,14 +220,14 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
             bi = dict()
             bi[s] = dict()
             if temp["type"] == "number":
-                list = file_csv[temp["name"]].unique()
+                list = map(float, file_csv[temp["name"]].unique())
             else:
                 list = temp["values"]
             for index, value in enumerate(list):
                 try:
                     v = value["value"]
                 except:
-                    v = value 
+                    v = value
                 temp_csv = file_csv.ix[file_csv[s] == v]
                 categories[v] = uni(elem, scale, temp_csv, file_json, weight)
                 try:
