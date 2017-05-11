@@ -43,6 +43,12 @@ class Topic:
     @classmethod
     def import_concepts(cls, filename="metadata/concepts.csv"):
         concepts = pd.read_csv(filename)
+        for sn, concept in concepts.iterrows():
+            try:
+                topic = cls.all_topics[concept["topic_prefix"]]
+                topic.concepts[concept["concept"]] = concept["label"]
+            except:
+                print("[ERROR] Could not import concept %s" % concept["concept"])
 
     @classmethod
     def import_all(cls):
