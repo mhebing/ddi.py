@@ -1,7 +1,12 @@
+import os
 import pandas as pd
 
 class Topic:
-    
+
+    TOPICS_CSV_DEFAULT = "metadata/topics.csv"
+    CONCEPTS_CSV_DEFAULT = "metadata/concepts.csv"
+    TARGET_DIRECTORY_DEFAULT = "ddionrails/topics"
+
     all_topics = dict()
     root_topics = dict()
     missing_parents = dict()
@@ -38,24 +43,24 @@ class Topic:
         return md
 
     @classmethod
-    def retry_missing_parents(cls):
+    def _retry_missing_parents(cls):
         before_len = len(cls.missing_parents)
         missing_parents = cls.missing_parents
         cls.missing_parents = dict()
         for name, object_tupel in missing_parents.items():
             cls(*object_tupel)
         if len(cls.missing_parents) < before_len:
-            cls.retry_missing_parents()
+            cls._retry_missing_parents()
 
     @classmethod
-    def import_topics(cls, filename="metadata/topics.csv"):
+    def import_topics(cls, filename=TOPICS_CSV_DEFAULT):
         topics = pd.read_csv(filename)
         for sn, topic in topics.iterrows():
             cls(str(topic["topic"]), str(topic["parent"]), str(topic["label"]))
-        cls.retry_missing_parents()
+        cls._retry_missing_parents()
 
     @classmethod
-    def import_concepts(cls, filename="metadata/concepts.csv"):
+    def import_concepts(cls, filename=CONCEPTS_CSV_DEFAULT):
         concepts = pd.read_csv(filename)
         for sn, concept in concepts.iterrows():
             try:
@@ -65,9 +70,11 @@ class Topic:
                 print("[ERROR] Could not import concept %s" % concept["concept"])
 
     @classmethod
-    def export_markdown(cls):
+    def export_markdown(cls, target_directory=TARGET_DIRECTORY_DEFAULT):
+        print("[INFO] Write markdown files")
         for key, topic in cls.root_topics.items():
-            with open("ddionrails/topics/%s.md" % key, "w") as f:
+            filename = os.path.join(target_directory, "%s.md" % key)
+            with open(filename, "w") as f:
                 f.write(topic.to_markdown())
 
     @classmethod
@@ -77,5 +84,4 @@ class Topic:
         print("[INFO] %s topics importet" %len(cls.all_topics))
         print("[INFO] %s root topics" %len(cls.root_topics))
         print("[INFO] %s missing parents" %len(cls.missing_parents))
-        print("[INFO] Write md")
         cls.export_markdown()
