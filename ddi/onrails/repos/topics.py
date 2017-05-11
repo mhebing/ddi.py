@@ -6,8 +6,9 @@ class Topic:
     root_topics = dict()
     missing_parents = dict()
 
-    def __init__(self, name, parent_name):
+    def __init__(self, name, parent_name, label=""):
         self.name = name
+        self.label = label
         self.children = list()
         self.concepts = dict()
         cls = self.__class__
@@ -18,16 +19,19 @@ class Topic:
             parent = cls.all_topics[parent_name]
             parent.add_child(self)
         else:
-            cls.missing_parents[name] = parent_name
+            cls.missing_parents[name] = (name, parent_name, label)
 
     def add_child(self, child):
         self.children.append(child)
 
     def to_markdown(self, depth=1):
-        md = "#" * depth
-        md += " %s\n\n" % self.name
+        if depth == 1:
+            md = "---\ntopic: %s\nlabel: %s\n---\n\n#" % (self.name, self.label)
+        else:
+            md = "#" * depth
+        md += " %s [%s]\n\n" % (self.label, self.name)
         for concept in self.concepts.items():
-            md += "- %s: %s\n" % concept
+            md += "- {%s}: %s\n" % concept
         md += "\n"
         for child in self.children:
             md += child.to_markdown(depth + 1)
@@ -38,8 +42,8 @@ class Topic:
         before_len = len(cls.missing_parents)
         missing_parents = cls.missing_parents
         cls.missing_parents = dict()
-        for name, parent_name in missing_parents.items():
-            cls(name, parent_name)
+        for name, object_tupel in missing_parents.items():
+            cls(*object_tupel)
         if len(cls.missing_parents) < before_len:
             cls.retry_missing_parents()
 
@@ -47,7 +51,7 @@ class Topic:
     def import_topics(cls, filename="metadata/topics.csv"):
         topics = pd.read_csv(filename)
         for sn, topic in topics.iterrows():
-            cls(str(topic["topic"]), str(topic["parent"]))
+            cls(str(topic["topic"]), str(topic["parent"]), str(topic["label"]))
         cls.retry_missing_parents()
 
     @classmethod
