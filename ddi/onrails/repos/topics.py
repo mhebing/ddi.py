@@ -23,6 +23,16 @@ class Topic:
     def add_child(self, child):
         self.children.append(child)
 
+    def to_markdown(self, depth=1):
+        md = "#" * depth
+        md += " %s\n\n" % self.name
+        for concept in self.concepts.items():
+            md += "- %s: %s\n" % concept
+        md += "\n"
+        for child in self.children:
+            md += child.to_markdown(depth + 1)
+        return md
+
     @classmethod
     def retry_missing_parents(cls):
         before_len = len(cls.missing_parents)
@@ -51,9 +61,17 @@ class Topic:
                 print("[ERROR] Could not import concept %s" % concept["concept"])
 
     @classmethod
+    def export_markdown(cls):
+        for key, topic in cls.root_topics.items():
+            with open("ddionrails/topics/%s.md" % key, "w") as f:
+                f.write(topic.to_markdown())
+
+    @classmethod
     def import_all(cls):
         cls.import_topics()
         cls.import_concepts()
         print("[INFO] %s topics importet" %len(cls.all_topics))
         print("[INFO] %s root topics" %len(cls.root_topics))
         print("[INFO] %s missing parents" %len(cls.missing_parents))
+        print("[INFO] Write md")
+        cls.export_markdown()
