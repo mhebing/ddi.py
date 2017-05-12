@@ -268,7 +268,7 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
         scale = scale,
         uni = uni(elem, scale, file_csv, file_json, weight),
         )
-    if elem["name"] not in split and split!=[np.nan]:
+    if elem["name"] not in split and split!=[np.nan] and split!=[""]:
         stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json, split, weight)
 
     return stat_dict
