@@ -257,13 +257,17 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
     return bi
 
 
-def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
+def stat_dict(dataset_name, elem, file_csv, file_json, split, weight, analysis_unit, period, sub_type, study):
     scale = elem["type"][0:3]
 
     stat_dict = dict(
-        study = "testsuite",
+        study = study,
+        analysis_unit = analysis_unit,
+        period = str(period),
+        sub_type = sub_type,
         dataset = file_json["name"],
         variable = elem["name"],
+        name = elem["name"],
         label = elem["label"],
         scale = scale,
         uni = uni(elem, scale, file_csv, file_json, weight),
@@ -273,11 +277,11 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight):
 
     return stat_dict
 
-def generate_stat(dataset_name, d, m, vistest, split, weight):
+def generate_stat(dataset_name, d, m, vistest, split, weight, analysis_unit, period, sub_type, study):
     stat = []
     for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
         stat.append(
-            stat_dict(dataset_name, elem, d, m, split, weight)
+            stat_dict(dataset_name, elem, d, m, split, weight, analysis_unit, period, sub_type, study)
         )
         if vistest!="":
             # Test for Visualization
@@ -293,10 +297,10 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     with open("".join((vistest, vistest_name)), "w") as json_file:
         json.dump(stat, json_file, indent=2)
     
-def write_stats(data, metadata, filename, file_type="json", split="", weight="", vistest=""):
+def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", vistest=""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
     split = [split]
-    stat = generate_stat(dataset_name, data, metadata, vistest, split, weight)
+    stat = generate_stat(dataset_name, data, metadata, vistest, split, weight, analysis_unit, period, sub_type, study)
     if file_type == "json":
         print("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:

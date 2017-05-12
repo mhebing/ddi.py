@@ -52,7 +52,7 @@ class Dataset:
         '''
         self.dataset, self.metadata = read_stata(dta_name)
     
-    def write_stats(self, output_name, file_type="json", split="", weight=""):
+    def write_stats(self, output_name, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study=""):
         '''
         Function to write statistics from data in json/html format.
         
@@ -67,7 +67,7 @@ class Dataset:
         
         dataset.write_stats("../output/dataset.html", file_type="html", split="split", weight="weight") 
         ''' 
-        write_stats(self.dataset, self.metadata, output_name, file_type=file_type, split=split, weight=weight)
+        write_stats(self.dataset, self.metadata, output_name, file_type=file_type, split=split, weight=weight, analysis_unit=analysis_unit, period=period, sub_type=sub_type, study=study)
         
     def write_tdp(self, output_csv, output_json):
         '''
