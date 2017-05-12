@@ -12,7 +12,7 @@ def stata_to_statistics(study, input, output):
     for data, weight, split, analysis_unit, period, sub_type in zip(filereader.filename, filereader.weight, filereader.split, filereader.analysis_unit, filereader.period, filereader.sub_type):
         d1 = Dataset()
         try:
-            d1.read_stata("../../../../../data/soep/" + data + ".dta")
+            d1.read_stata("../../../../data/soep/testdata/" + data + ".dta")
         except:
             print("Unable to find " + data + ".dta.")
             continue
