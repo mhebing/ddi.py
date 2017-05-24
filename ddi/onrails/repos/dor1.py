@@ -37,6 +37,19 @@ def variables():
     lower_all_names(x)
     x.to_csv("ddionrails/variables.csv", index=False)
 
+def transformations():
+    x = pd.read_csv("metadata/generations.csv")
+    x.rename(columns={
+        "output_study":"target_study_name",
+        "output_dataset":"target_dataset_name",
+        "output_variable":"target_variable_name",
+        "input_study":"origin_study_name",
+        "input_dataset":"origin_dataset_name",
+        "input_variable":"origin_variable_name",
+    }, inplace=True)
+    lower_all_names(x)
+    x.to_csv("ddionrails/transformations.csv", index=False)
+
 def questions_variables():
     x = pd.read_csv("metadata/logical_variables.csv")
     x.rename(columns={
