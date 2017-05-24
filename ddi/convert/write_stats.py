@@ -16,22 +16,36 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
     values = []
     missings = []
     labels = []
-    labels_de = []
 
-    value_count = file_csv[elem["name"]].value_counts()
-    for value, value_de in zip(elem["values"], elem_de["values"]):
-        try:
-            frequencies.append(int(value_count[value["value"]]))
-        except:
-            frequencies.append(0)
-        labels.append(value["label"])
-        labels.append(value_de["label"])
-        if value["value"]>=0:
-            missings.append("false")
-        else:
-            missings.append("true")
-        values.append(value["value"]) 
-        
+    if elem_de!="":
+        labels_de = []
+
+        value_count = file_csv[elem["name"]].value_counts()
+        for i, (value, value_de) in enumerate(zip(elem["values"], elem_de["values"])):
+            try:
+                frequencies.append(int(value_count[value["value"]]))
+            except:
+                frequencies.append(0)
+            labels.append(value["label"])
+            labels_de.append(value_de["label"])
+            if value["value"]>=0:
+                missings.append("false")
+            else:
+                missings.append("true")
+            values.append(value["value"]) 
+    else:
+        value_count = file_csv[elem["name"]].value_counts()
+        for i, value in enumerate(elem["values"]):
+            try:
+                frequencies.append(int(value_count[value["value"]]))
+            except:
+                frequencies.append(0)
+            labels.append(value["label"])
+            if value["value"]>=0:
+                missings.append("false")
+            else:
+                missings.append("true")
+            values.append(value["value"])
     '''
     missing_count = sum(i<0 for i in file_csv[elem["name"]])
     print(elem["name"])
@@ -42,8 +56,9 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
         values = values,
         missings = missings,
         labels = labels,
-        labels_de = labels_de,
         )
+    if elem_de!="":
+        cat_dict["labels_de"]=labels_de
         
     # weighted
     weighted = []
@@ -173,7 +188,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         total = total,
         valid = valid,
         missing = missing,
-        missings = missings,
+        num_missings = missings,
         )
         
     if var_weight != "":
@@ -181,7 +196,9 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     return number_dict
 
-def uni(elem, elem_de, scale, file_csv, file_json, file_de_json, var_weight):
+def uni(elem, elem_de, file_csv, var_weight):
+
+    print(file_csv)
 
     statistics = {}
     
@@ -212,7 +229,7 @@ def uni(elem, elem_de, scale, file_csv, file_json, file_de_json, var_weight):
     
     return statistics
 
-def bi(base, elem, scale, file_csv, file_json, split, weight):
+def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
     # split: variable for bi-variate analysis
     # base: variable for bi-variate analysis (every variable except split)
     categories = dict()
@@ -232,20 +249,20 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
                 except:
                     v = value
                 temp_csv = file_csv.ix[file_csv[s] == v]
-                categories[v] = uni(elem, scale, temp_csv, file_json, weight)
+                categories[v] = uni(elem, elem_de, temp_csv, weight)
                 try:
                     categories[v]["label"] = temp["values"][index]["label"]
                 except:
                     categories[v]["label"] = value
 
                 if elem["type"] == "cat":
-                    uni_source = uni(elem, scale, file_csv, file_json, weight)
+                    uni_source = uni(elem, elem_de, temp_csv, weight)
                     for i in ["values", "missings", "labels"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
 
                 elif elem["type"] == "number":
-                    uni_source = uni(elem, scale, file_csv, file_json, weight)
+                    uni_source = uni(elem, elem_de, temp_csv, weight)
                     for i in ["min", "max", "by"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
@@ -274,24 +291,43 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
         name = elem["name"].lower(),
         name_cs = elem["name"],
         label = elem["label"],
-        label_de = elem_de["label"],
         scale = scale,
-        uni = uni(elem, elem_de, scale, file_csv, file_json, file_de_json, weight),
+        uni = uni(elem, elem_de, file_csv, weight),
         )
+    if elem_de != "":
+        stat_dict["label_de"] = elem_de["label"]
+
     if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="[nan]":
-        stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json, split, weight)
+        stat_dict["bi"] = bi(elem["name"], elem, elem_de, scale, file_csv, file_json, split, weight)
 
     return stat_dict
 
 def generate_stat(dataset_name, d, m, m_de, vistest, split, weight, analysis_unit, period, sub_type, study):
     stat = []
-    for elem, elem_de in zip(m["resources"][0]["schema"]["fields"], m_de["resources"][0]["schema"]["fields"]):
-        stat.append(
-            stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, weight, analysis_unit, period, sub_type, study)
-        )
-        if vistest!="":
-            # Test for Visualization
-            write_vistest(stat[-1], dataset_name, elem["name"], vistest)
+    if m_de != "":
+        for i, (elem, elem_de) in enumerate(zip(m["resources"][0]["schema"]["fields"], 
+                                                m_de["resources"][0]["schema"]["fields"]
+                                                )
+        ):
+            stat.append(
+                stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, 
+                          weight, analysis_unit, period, sub_type, study
+                )
+            )
+            if vistest!="":
+                # Test for Visualization
+                write_vistest(stat[-1], dataset_name, elem["name"], vistest)
+    else:
+        for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
+            elem_de=""
+            stat.append(
+                stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, 
+                          weight, analysis_unit, period, sub_type, study
+                )
+            )
+            if vistest!="":
+                # Test for Visualization
+                write_vistest(stat[-1], dataset_name, elem["name"], vistest)
                 
     return stat
     

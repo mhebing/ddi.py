@@ -6,7 +6,7 @@ import os,sys, yaml, csv
 sys.path.append(os.path.abspath("../../../ddi.py"))
 from ddi.dataset import Dataset
 
-def stata_to_statistics(study_name, input_csv, input_path, input_path_de="", output_path):
+def stata_to_statistics(study_name, input_csv, input_path, output_path, input_path_de=""):
     filereader = pd.read_csv(input_csv, delimiter=",", header = 0)
 
     for data, weight, split, analysis_unit, period, sub_type in zip(
