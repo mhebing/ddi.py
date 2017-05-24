@@ -10,20 +10,22 @@ cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 templatepath = cur_dir + "/convert/template_stats.html"
 template_stats = "\"\"\"" + open(templatepath).read() + "\"\"\""
    
-def uni_cat(elem, file_csv, var_weight):
+def uni_cat(elem, elem_de, file_csv, var_weight):
 
     frequencies = []
     values = []
     missings = []
     labels = []
+    labels_de = []
 
     value_count = file_csv[elem["name"]].value_counts()
-    for index, value in enumerate(elem["values"]):
+    for value, value_de in zip(elem["values"], elem_de["values"]):
         try:
             frequencies.append(int(value_count[value["value"]]))
         except:
             frequencies.append(0)
         labels.append(value["label"])
+        labels.append(value_de["label"])
         if value["value"]>=0:
             missings.append("false")
         else:
@@ -40,6 +42,7 @@ def uni_cat(elem, file_csv, var_weight):
         values = values,
         missings = missings,
         labels = labels,
+        labels_de = labels_de,
         )
         
     # weighted
@@ -178,14 +181,14 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     return number_dict
 
-def uni(elem, scale, file_csv, file_json, var_weight):
+def uni(elem, elem_de, scale, file_csv, file_json, file_de_json, var_weight):
 
     statistics = {}
     
     # weight variable is just one variable
    
     if elem["type"] == "cat":
-        cat_dict = uni_cat(elem, file_csv, var_weight)
+        cat_dict = uni_cat(elem, elem_de, file_csv, var_weight)
 
         statistics.update(
             cat_dict
@@ -257,7 +260,7 @@ def bi(base, elem, scale, file_csv, file_json, split, weight):
     return bi
 
 
-def stat_dict(dataset_name, elem, file_csv, file_json, split, weight, analysis_unit, period, sub_type, study):
+def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study):
     scale = elem["type"][0:3]
 
     stat_dict = dict(
@@ -265,24 +268,26 @@ def stat_dict(dataset_name, elem, file_csv, file_json, split, weight, analysis_u
         analysis_unit = analysis_unit,
         period = str(period),
         sub_type = sub_type,
-        dataset = file_json["name"],
+        dataset = file_json["name"].lower(),
+        dataset_cs = file_json["name"],
         variable = elem["name"],
         name = elem["name"].lower(),
         name_cs = elem["name"],
         label = elem["label"],
+        label_de = elem_de["label"],
         scale = scale,
-        uni = uni(elem, scale, file_csv, file_json, weight),
+        uni = uni(elem, elem_de, scale, file_csv, file_json, file_de_json, weight),
         )
     if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="[nan]":
         stat_dict["bi"] = bi(elem["name"], elem, scale, file_csv, file_json, split, weight)
 
     return stat_dict
 
-def generate_stat(dataset_name, d, m, vistest, split, weight, analysis_unit, period, sub_type, study):
+def generate_stat(dataset_name, d, m, m_de, vistest, split, weight, analysis_unit, period, sub_type, study):
     stat = []
-    for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
+    for elem, elem_de in zip(m["resources"][0]["schema"]["fields"], m_de["resources"][0]["schema"]["fields"]):
         stat.append(
-            stat_dict(dataset_name, elem, d, m, split, weight, analysis_unit, period, sub_type, study)
+            stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, weight, analysis_unit, period, sub_type, study)
         )
         if vistest!="":
             # Test for Visualization
@@ -298,10 +303,10 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     with open("".join((vistest, vistest_name)), "w") as json_file:
         json.dump(stat, json_file, indent=2)
     
-def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", vistest=""):
+def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", metadata_de="", vistest=""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
     split = [split]
-    stat = generate_stat(dataset_name, data, metadata, vistest, split, weight, analysis_unit, period, sub_type, study)
+    stat = generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study)
     if file_type == "json":
         print("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:
