@@ -10,7 +10,7 @@ class Parser:
 
     def __init__(self, study_name, r2ddi_path="r2ddi", version=None, primary_language="en",
                  versions=["v1"], latest_version="v1",
-                 datasets_csv=None):
+                 datasets_csv="ddionrails/datasets.csv"):
         """
         The ``version`` option is now DEPRECATED, pleas use the combination of
         ``versions`` (list) and ``latest_version`` from now on.
@@ -93,7 +93,7 @@ class Parser:
             try:
                 var_dict["period"] = "%.0f" % d.get("period_name")
             except:
-                pass
+                var_dict["period"] = str(d.get("period_name"))
         except:
             pass
 
