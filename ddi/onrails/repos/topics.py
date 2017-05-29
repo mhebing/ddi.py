@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 import pandas as pd
 
 class Topic:
@@ -35,7 +36,7 @@ class Topic:
         else:
             md = "#" * depth
         md += " %s [%s]\n\n" % (self.label, self.name)
-        for concept in self.concepts.items():
+        for concept in sorted(self.concepts.items()):
             md += "- {%s}: %s\n" % concept
         md += "\n"
         for child in self.children:
