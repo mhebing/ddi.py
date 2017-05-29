@@ -88,8 +88,8 @@ class Parser:
             d = self.datasets_csv.ix[
                 self.datasets_csv.dataset_name == var_dict["dataset"]
             ].iloc[0]
-            var_dict["analysis_unit"] = d.get("analysis_unit_name")
-            var_dict["sub_type"] = d.get("conceptual_dataset_name")
+            var_dict["analysis_unit"] = str(d.get("analysis_unit_name"))
+            var_dict["sub_type"] = str(d.get("conceptual_dataset_name"))
             try:
                 var_dict["period"] = "%.0f" % d.get("period_name")
             except:
