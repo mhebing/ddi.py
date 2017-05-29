@@ -7,8 +7,18 @@ GIP_RE = re.compile(r'([a-z]{2})(\d{2})')
 
 class XmlParser:
 
-    def __init__(self, xml_path, study_name):
+    def __init__(
+        self,
+        xml_path,
+        study_name,
+        write_variables=True,
+        write_datasets=True,
+        write_concepts=True,
+    ):
         self.study = study_name
+        self.write_variables = write_variables
+        self.write_datasets = write_datasets
+        self.write_concepts = write_concepts
         self.path = xml_path
         self.variables = list()
         self.datasets = list()
@@ -46,9 +56,12 @@ class XmlParser:
         data.to_csv(file_name, index=False)
     
     def _write_csv_files(self):
-        self._csv_helper("ddionrails/variables.csv", self.variables)
-        self._csv_helper("ddionrails/datasets.csv", self.datasets)
-        self._csv_helper("ddionrails/concepts.csv", self.concepts)
+        if self.write_variables:
+            self._csv_helper("ddionrails/variables.csv", self.variables)
+        if self.write_datasets:
+            self._csv_helper("ddionrails/datasets.csv", self.datasets)
+        if self.write_concepts:
+            self._csv_helper("ddionrails/concepts.csv", self.concepts)
 
     def run(self):
         xml_files = glob.glob(os.path.join(self.path, "*.xml"))
