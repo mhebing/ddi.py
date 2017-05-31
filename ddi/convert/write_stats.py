@@ -4,6 +4,7 @@ import re, os
 import json, yaml
 import numpy as np
 import pandas as pd
+import collections
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -275,10 +276,11 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                         del categories[v][i]
 
                 categories = { str(key): value for key, value in categories.items() }
+                ordered_categories = collections.OrderedDict(sorted(categories.items()))
 
             bi[s].update(dict(
                 label = temp["label"],
-                categories = categories,
+                categories = ordered_categories,
                 ))    
 
     return bi
