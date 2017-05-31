@@ -5,6 +5,7 @@ import json, yaml
 import numpy as np
 import pandas as pd
 import collections
+import math
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -288,6 +289,9 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
 
 def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study):
     scale = elem["type"][0:3]
+    
+    if math.isnan(sub_type) == True:
+        sub_type=""
 
     stat_dict = dict(
         study = study,
