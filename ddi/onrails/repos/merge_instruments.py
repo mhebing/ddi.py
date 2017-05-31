@@ -82,6 +82,13 @@ def fill_questions(tables, instruments, answers):
         item["sn"] = len(question_items)
         _clean_x(item)
         question_items[item_name] = item
+    for iname, instrument in instruments.items():
+        for qname, question in instrument["questions"].items():
+            qitems = question["items"]
+            for key, item in qitems.items():
+                item["item"] = str(key)
+                item["number"] = str(item.get("number", ""))
+            question["items"] = list(qitems.values())
     return instruments
 
 def _clean_x(x):
