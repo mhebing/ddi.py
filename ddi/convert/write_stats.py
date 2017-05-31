@@ -162,6 +162,8 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     
     if var_weight != "":
         weighted = []
+        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
+        print(f_w)
         # weighted placeholder
         weighted = density[:]
         
@@ -197,8 +199,6 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     return number_dict
 
 def uni(elem, elem_de, file_csv, var_weight):
-
-    print(file_csv)
 
     statistics = {}
     
