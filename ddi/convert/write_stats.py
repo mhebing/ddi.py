@@ -4,6 +4,8 @@ import re, os
 import json, yaml
 import numpy as np
 import pandas as pd
+import collections
+import math
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -129,7 +131,6 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         for num in file_csv[elem["name"]]:
             if num>=0:
                 temp_array.append(float(num))
-
         density_range = np.linspace(min_val, max_val, num_density_elements)
         try:
             density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
@@ -160,17 +161,25 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
             # missings["labels"].append.... # there are no labels for missings in numeric variables 
     missing.append(sum(missings["frequencies"]))
     
-    if var_weight != "":
+    if var_weight != "" and elem["name"] != var_weight:
         weighted = []
-        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
-        print(f_w)
-        # weighted placeholder
-        weighted = density[:]
-        
-        # weighted missings
-        if elem["name"] != var_weight:
-            missings["weighted"] = []
+        # weighted densities: difficult to calculate the weighted value f.e. wave with pivot
+        '''
+        try:
             f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
+            temp_array = []
+            for num in f_w:
+                if num>=0:
+                    temp_array.append(float(num))
+            density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
+            weighted = density_temp.tolist()
+        except:
+            weighted = []
+        '''
+
+        # weighted missings
+        missings["weighted"] = []
+        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
 
         for i in missings["values"]:
             try:
@@ -193,7 +202,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         num_missings = missings,
         )
         
-    if var_weight != "":
+    if var_weight != "" and elem["name"] != var_weight:
         number_dict["weighted"] = weighted
 
     return number_dict
@@ -268,10 +277,11 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                         del categories[v][i]
 
                 categories = { str(key): value for key, value in categories.items() }
+                ordered_categories = collections.OrderedDict(sorted(categories.items()))
 
             bi[s].update(dict(
                 label = temp["label"],
-                categories = categories,
+                categories = ordered_categories,
                 ))    
 
     return bi
@@ -279,6 +289,9 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
 
 def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study):
     scale = elem["type"][0:3]
+    
+    if math.isnan(sub_type) == True:
+        sub_type=""
 
     stat_dict = dict(
         study = study,
