@@ -129,7 +129,6 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         for num in file_csv[elem["name"]]:
             if num>=0:
                 temp_array.append(float(num))
-
         density_range = np.linspace(min_val, max_val, num_density_elements)
         try:
             density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
@@ -160,17 +159,25 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
             # missings["labels"].append.... # there are no labels for missings in numeric variables 
     missing.append(sum(missings["frequencies"]))
     
-    if var_weight != "":
+    if var_weight != "" and elem["name"] != var_weight:
         weighted = []
-        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
-        print(f_w)
-        # weighted placeholder
-        weighted = density[:]
-        
-        # weighted missings
-        if elem["name"] != var_weight:
-            missings["weighted"] = []
+        # weighted densities: difficult to calculate the weighted value f.e. wave with pivot
+        '''
+        try:
             f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
+            temp_array = []
+            for num in f_w:
+                if num>=0:
+                    temp_array.append(float(num))
+            density_temp = gaussian_kde(sorted(temp_array)).evaluate(density_range)
+            weighted = density_temp.tolist()
+        except:
+            weighted = []
+        '''
+
+        # weighted missings
+        missings["weighted"] = []
+        f_w = file_csv.pivot_table(index=elem["name"], values=var_weight, aggfunc=np.sum)
 
         for i in missings["values"]:
             try:
@@ -193,7 +200,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         num_missings = missings,
         )
         
-    if var_weight != "":
+    if var_weight != "" and elem["name"] != var_weight:
         number_dict["weighted"] = weighted
 
     return number_dict
