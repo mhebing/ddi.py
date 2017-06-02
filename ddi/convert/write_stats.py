@@ -256,13 +256,13 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                 try:
                     v = value["value"]
                 except:
-                    v = value
+                    v = int(value)
                 temp_csv = file_csv.ix[file_csv[s] == v]
                 categories[v] = uni(elem, elem_de, temp_csv, weight)
                 try:
                     categories[v]["label"] = temp["values"][index]["label"]
                 except:
-                    categories[v]["label"] = value
+                    categories[v]["label"] = v
 
                 if elem["type"] == "cat":
                     uni_source = uni(elem, elem_de, temp_csv, weight)
