@@ -271,7 +271,7 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                         del categories[v][i]
 
                 elif elem["type"] == "number":
-                    uni_source = uni(elem, elem_de, temp_csv, weight)
+                    uni_source = uni(elem, elem_de, file_csv, weight)
                     for i in ["min", "max", "by"]:
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
