@@ -207,6 +207,42 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     return number_dict
 
+def uni_statistics(elem, file_csv):
+    names = ["Min.", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max.", "valid", "invalid"]
+    values = []
+
+    data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
+      
+    min_val = min(data_wm)
+    max_val = max(data_wm)  
+    
+    median = np.median(data_wm)
+    mean = np.mean(data_wm)
+    
+    mid = int(len(sorted(data_wm)) / 2)
+    first_q = np.median(sorted(data_wm)[:mid])
+    if(len(sorted(data_wm)) % 2 == 0):
+        third_q = np.median(sorted(data_wm)[mid:])  
+    else:
+        third_q = np.median(sorted(data_wm)[mid+1:])
+
+    
+    total = int(file_csv[elem["name"]].size)
+    valid = total - int(file_csv[elem["name"]].isnull().sum())
+    invalid = int(file_csv[elem["name"]].isnull().sum())
+    
+    value_names = [min_val, first_q, median, mean, third_q, max_val, valid, invalid]
+    
+    for v in value_names:
+        values.append(str(v))
+    
+    statistics = dict(
+        names = names,
+        values = values,
+        )
+    
+    return statistics
+
 def uni(elem, elem_de, file_csv, var_weight):
 
     statistics = {}
@@ -307,6 +343,10 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
         scale = scale,
         uni = uni(elem, elem_de, file_csv, weight),
         )
+    
+    if elem["type"] == "number":
+        stat_dict["statistics"] = uni_statistics(elem, file_csv)
+    
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
 
