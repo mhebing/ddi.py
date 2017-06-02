@@ -88,6 +88,8 @@ def fill_questions(tables, instruments, answers):
             for key, item in qitems.items():
                 item["item"] = str(key)
                 item["number"] = str(item.get("number", ""))
+                for k in [k for k in item.keys() if "." in k ]:
+                    item.pop(k)
             question["items"] = list(qitems.values())
     return instruments
 
