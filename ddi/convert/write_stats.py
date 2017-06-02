@@ -290,7 +290,7 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
 def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study):
     scale = elem["type"][0:3]
     
-    if math.isnan(sub_type) == True:
+    if type(sub_type) == np.float64 and math.isnan(sub_type) == True:
         sub_type=""
 
     stat_dict = dict(
