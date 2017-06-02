@@ -74,9 +74,10 @@ class Topic:
     def export_markdown(cls, target_directory=TARGET_DIRECTORY_DEFAULT):
         print("[INFO] Write markdown files")
         for key, topic in cls.root_topics.items():
-            filename = os.path.join(target_directory, "%s.md" % key)
-            with open(filename, "w") as f:
-                f.write(topic.to_markdown())
+            if len(topic.children) > 0:
+                filename = os.path.join(target_directory, "%s.md" % key)
+                with open(filename, "w") as f:
+                    f.write(topic.to_markdown())
 
     @classmethod
     def import_all(cls):
