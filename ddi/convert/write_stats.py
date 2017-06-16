@@ -1,5 +1,6 @@
 from scipy.stats import gaussian_kde
 from jinja2 import Template
+from collections import Counter
 import re, os
 import json, yaml
 import numpy as np
@@ -207,11 +208,37 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
 
     return number_dict
 
-def uni_statistics(elem, file_csv):
-    names = ["Min.", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max.", "valid", "invalid"]
+def stats_cat(elem, file_csv):
+    
+    data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
+    
+    names = ["Median", "Valid", "Invalid"]
     values = []
+    
+    median = np.median(data_wm)
+    
+    total = int(file_csv[elem["name"]].size)
+    valid = total - int(file_csv[elem["name"]].isnull().sum())
+    invalid = int(file_csv[elem["name"]].isnull().sum())
+    
+    value_names = [median, valid, invalid]
+    
+    for v in value_names:
+        values.append(str(v))
+    
+    statistics = dict(
+        names = names,
+        values = values,
+        )
+
+    return statistics
+    
+def stats_number(elem, file_csv):
 
     data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
+
+    names = ["Min.", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max.", "Valid", "Invalid"]
+    values = []
       
     min_val = min(data_wm)
     max_val = max(data_wm)  
@@ -240,6 +267,59 @@ def uni_statistics(elem, file_csv):
         names = names,
         values = values,
         )
+    
+    return statistics    
+    
+def stats_string(elem, file_csv):
+
+    names = ["Valid", "Invalid"]
+    values = []
+    
+    '''
+    data_wm = file_csv.loc[:,[elem["name"]]]
+    for index, i in data_wm.iterrows():
+        if "-1" in str(i) or \
+           "-2" in str(i) or \
+           "-3" in str(i) or \
+           "nan" in str(i) or \
+           "." in str(i):
+            data_wm.iloc[[index]] = ""
+    ''' 
+           
+    total = int(file_csv[elem["name"]].size)
+    valid = int(file_csv[elem["name"]].value_counts().sum())
+    invalid = int(file_csv[elem["name"]].isnull().sum())
+    for i in file_csv[elem["name"]]:
+        if i == "" or i == ".":
+            valid = valid - 1
+            invalid = invalid + 1
+    
+    
+    value_names = [valid, invalid]
+    
+    for v in value_names:
+        values.append(str(v))
+    
+    statistics = dict(
+        names = names,
+        values = values,
+        )
+    
+    return statistics
+
+def uni_statistics(elem, file_csv):
+    
+    if elem["type"] == "cat":
+    
+        statistics = stats_cat(elem, file_csv)
+    
+    elif elem["type"] == "string":
+
+        statistics = stats_string(elem, file_csv)
+    
+    elif elem["type"] == "number": 
+    
+        statistics = stats_number(elem, file_csv)
     
     return statistics
 
@@ -344,7 +424,11 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
         uni = uni(elem, elem_de, file_csv, weight),
         )
     
-    if elem["type"] == "number":
+    if elem["type"] == "number" or elem["type"] == "cat":
+        data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
+        if sum(Counter(data_wm.values).values()) > 10:
+            stat_dict["statistics"] = uni_statistics(elem, file_csv)
+    else:
         stat_dict["statistics"] = uni_statistics(elem, file_csv)
     
     if elem_de != "":
