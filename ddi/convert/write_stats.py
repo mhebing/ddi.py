@@ -22,7 +22,7 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
 
     if elem_de!="":
         labels_de = []
-
+        
         value_count = file_csv[elem["name"]].value_counts()
         for i, (value, value_de) in enumerate(zip(elem["values"], elem_de["values"])):
             try:

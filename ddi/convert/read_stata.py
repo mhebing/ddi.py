@@ -63,7 +63,7 @@ def generate_tdp(vars, varlabels, varscale, dta_file, df_data, data):
             )
         if scale == "cat":
             meta["values"] = cat_values(var, varscale, df_data, data)
-
+            
         fields.append(
             meta
             )
