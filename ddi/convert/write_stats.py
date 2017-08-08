@@ -442,15 +442,15 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
 def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study):
     stat = []
     if metadata_de != "":
-        enum_object = zip(
+        elements = zip(
             metadata["resources"][0]["schema"]["fields"], 
             metadata_de["resources"][0]["schema"]["fields"],
         )
     else:
-        enum_object = list()
+        elements = list()
         for elem in metadata["resources"][0]["schema"]["fields"]:
-            enum_object.append((elem, ""))
-    for elem, elem_de in enum_object:
+            elements.append((elem, ""))
+    for elem, elem_de in elements:
         try:
             stat.append(stat_dict(
                 dataset_name, elem, elem_de, data, metadata, metadata_de, split, 
