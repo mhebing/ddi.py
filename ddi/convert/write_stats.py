@@ -439,33 +439,27 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
 
     return stat_dict
 
-def generate_stat(dataset_name, d, m, m_de, vistest, split, weight, analysis_unit, period, sub_type, study):
+def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study):
     stat = []
-    if m_de != "":
-        for i, (elem, elem_de) in enumerate(zip(m["resources"][0]["schema"]["fields"], 
-                                                m_de["resources"][0]["schema"]["fields"]
-                                                )
-        ):
-            stat.append(
-                stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, 
-                          weight, analysis_unit, period, sub_type, study
-                )
-            )
-            if vistest!="":
-                # Test for Visualization
-                write_vistest(stat[-1], dataset_name, elem["name"], vistest)
+    if metadata_de != "":
+        enum_object = zip(
+            metadata["resources"][0]["schema"]["fields"], 
+            metadata_de["resources"][0]["schema"]["fields"],
+        )
     else:
-        for i, elem in enumerate(m["resources"][0]["schema"]["fields"]):
-            elem_de=""
-            stat.append(
-                stat_dict(dataset_name, elem, elem_de, d, m, m_de, split, 
-                          weight, analysis_unit, period, sub_type, study
-                )
-            )
+        enum_object = list()
+        for elem in metadata["resources"][0]["schema"]["fields"]:
+            enum_object.append((elem, ""))
+    for elem, elem_de in enum_object:
+        try:
+            stat.append(stat_dict(
+                dataset_name, elem, elem_de, data, metadata, metadata_de, split, 
+                weight, analysis_unit, period, sub_type, study
+            ))
             if vistest!="":
-                # Test for Visualization
                 write_vistest(stat[-1], dataset_name, elem["name"], vistest)
-                
+        except:
+            print("[ERROR] in parsing %s" % elem)
     return stat
     
 def write_vistest(stat, dataset_name, var_name, vistest):
