@@ -54,7 +54,7 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
     print(elem["name"])
     '''
 
-    cat_dict = dict(
+    cat_dict = collections.OrderedDict(
         frequencies = frequencies,
         values = values,
         missings = missings,
@@ -99,7 +99,7 @@ def uni_string(elem, file_csv):
     missings.append(len_missing)
 
 
-    string_dict = dict(
+    string_dict = collections.OrderedDict(
         frequencies = frequencies,
         missings = missings, #includes system missings
         )
@@ -111,7 +111,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         file_csv[elem["name"]] = pd.to_numeric(file_csv[elem["name"]])
 
     #missings        
-    missings = dict(
+    missings = collections.OrderedDict(
         frequencies=[],
         labels=[],
         values=[],
@@ -192,7 +192,7 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     total = int(file_csv[elem["name"]].size)
     valid = total - int(file_csv[elem["name"]].isnull().sum())
 
-    number_dict = dict(
+    number_dict = collections.OrderedDict(
         density = density,
         min = min_val,
         max = max_val,
@@ -226,7 +226,7 @@ def stats_cat(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = dict(
+    statistics = collections.OrderedDict(
         names = names,
         values = values,
         )
@@ -263,7 +263,7 @@ def stats_number(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = dict(
+    statistics = collections.OrderedDict(
         names = names,
         values = values,
         )
@@ -300,7 +300,7 @@ def stats_string(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = dict(
+    statistics = collections.OrderedDict(
         names = names,
         values = values,
         )
@@ -357,13 +357,13 @@ def uni(elem, elem_de, file_csv, var_weight):
 def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
     # split: variable for bi-variate analysis
     # base: variable for bi-variate analysis (every variable except split)
-    categories = dict()
+    categories = collections.OrderedDict()
 
     for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
         if temp["name"] in split:
             s = temp["name"]
-            bi = dict()
-            bi[s] = dict()
+            bi = collections.OrderedDict()
+            bi[s] = collections.OrderedDict()
             if temp["type"] == "number":
                 list = map(float, file_csv[temp["name"]].unique())
             else:
@@ -395,7 +395,7 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                 categories = { str(key): value for key, value in categories.items() }
                 ordered_categories = collections.OrderedDict(sorted(categories.items()))
 
-            bi[s].update(dict(
+            bi[s].update(collections.OrderedDict(
                 label = temp["label"],
                 categories = ordered_categories,
                 ))    
@@ -409,7 +409,7 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
     if type(sub_type) == np.float64 and math.isnan(sub_type) == True:
         sub_type=""
 
-    stat_dict = dict(
+    stat_dict = collections.OrderedDict(
         study = study,
         analysis_unit = analysis_unit,
         period = str(period),
