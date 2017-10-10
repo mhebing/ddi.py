@@ -1,11 +1,10 @@
 from scipy.stats import gaussian_kde
 from jinja2 import Template
-from collections import Counter
+from collections import Counter, OrderedDict
 import re, os
 import json, yaml
 import numpy as np
 import pandas as pd
-import collections
 import math
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -54,12 +53,12 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
     print(elem["name"])
     '''
 
-    cat_dict = collections.OrderedDict(
-        frequencies = frequencies,
-        values = values,
-        missings = missings,
-        labels = labels,
-        )
+    cat_dict = OrderedDict([
+        ("frequencies", frequencies),
+        ("values", values),
+        ("missings", missings),
+        ("labels", labels),
+    ])
     if elem_de!="":
         cat_dict["labels_de"]=labels_de
         
@@ -99,10 +98,10 @@ def uni_string(elem, file_csv):
     missings.append(len_missing)
 
 
-    string_dict = collections.OrderedDict(
-        frequencies = frequencies,
-        missings = missings, #includes system missings
-        )
+    string_dict = OrderedDict([
+        ("frequencies", frequencies),
+        ("missings", missings),
+    ])
 
     return string_dict
 
@@ -111,11 +110,11 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
         file_csv[elem["name"]] = pd.to_numeric(file_csv[elem["name"]])
 
     #missings        
-    missings = collections.OrderedDict(
-        frequencies=[],
-        labels=[],
-        values=[],
-    )
+    missings = OrderedDict([
+        ("frequencies", []),
+        ("labels", []),
+        ("values", []),
+    ])
     
     density = []
     total = []
@@ -192,16 +191,16 @@ def uni_number(elem, file_csv, var_weight, num_density_elements=20):
     total = int(file_csv[elem["name"]].size)
     valid = total - int(file_csv[elem["name"]].isnull().sum())
 
-    number_dict = collections.OrderedDict(
-        density = density,
-        min = min_val,
-        max = max_val,
-        by = by,
-        total = total,
-        valid = valid,
-        missing = missing,
-        num_missings = missings,
-        )
+    number_dict = OrderedDict([
+        ("density", density),
+        ("min", min_val),
+        ("max", max_val),
+        ("by", by),
+        ("total", total),
+        ("valid", valid),
+        ("missing", missing),
+        ("num_missings", missings),
+    ])
         
     if var_weight != "" and elem["name"] != var_weight:
         number_dict["weighted"] = weighted
@@ -226,10 +225,10 @@ def stats_cat(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = collections.OrderedDict(
-        names = names,
-        values = values,
-        )
+    statistics = OrderedDict([
+        ("names", names),
+        ("values", values),
+    ])
 
     return statistics
     
@@ -263,10 +262,10 @@ def stats_number(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = collections.OrderedDict(
-        names = names,
-        values = values,
-        )
+    statistics = OrderedDict([
+        ("names", names),
+        ("values", values),
+    ])
     
     return statistics    
     
@@ -300,10 +299,10 @@ def stats_string(elem, file_csv):
     for v in value_names:
         values.append(str(v))
     
-    statistics = collections.OrderedDict(
-        names = names,
-        values = values,
-        )
+    statistics = OrderedDict([
+        ("names", names),
+        ("values", values),
+    ])
     
     return statistics
 
@@ -325,7 +324,7 @@ def uni_statistics(elem, file_csv):
 
 def uni(elem, elem_de, file_csv, var_weight):
 
-    statistics = {}
+    statistics = OrderedDict()
     
     # weight variable is just one variable
    
@@ -357,13 +356,13 @@ def uni(elem, elem_de, file_csv, var_weight):
 def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
     # split: variable for bi-variate analysis
     # base: variable for bi-variate analysis (every variable except split)
-    categories = collections.OrderedDict()
+    categories = OrderedDict()
 
     for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
         if temp["name"] in split:
             s = temp["name"]
-            bi = collections.OrderedDict()
-            bi[s] = collections.OrderedDict()
+            bi = OrderedDict()
+            bi[s] = OrderedDict()
             if temp["type"] == "number":
                 list = map(float, file_csv[temp["name"]].unique())
             else:
@@ -392,13 +391,19 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
                         bi[s][i] = uni_source[i]
                         del categories[v][i]
 
-                categories = { str(key): value for key, value in categories.items() }
-                ordered_categories = collections.OrderedDict(sorted(categories.items()))
+                ###### Marcel Bauernhack ########
+                categories_old = categories
+                categories = OrderedDict()
+                for key, value in categories_old.items():
+                    categories[str(key)] = value
+                ##############
 
-            bi[s].update(collections.OrderedDict(
-                label = temp["label"],
-                categories = ordered_categories,
-                ))    
+                ordered_categories = OrderedDict(sorted(categories.items()))
+
+            bi[s].update(OrderedDict([
+                ("label", temp["label"]),
+                ("categories", ordered_categories),
+            ]))    
 
     return bi
 
@@ -409,20 +414,20 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
     if type(sub_type) == np.float64 and math.isnan(sub_type) == True:
         sub_type=""
 
-    stat_dict = collections.OrderedDict(
-        study = study,
-        analysis_unit = analysis_unit,
-        period = str(period),
-        sub_type = sub_type,
-        dataset = file_json["name"].lower(),
-        dataset_cs = file_json["name"],
-        variable = elem["name"],
-        name = elem["name"].lower(),
-        name_cs = elem["name"],
-        label = elem["label"],
-        scale = scale,
-        uni = uni(elem, elem_de, file_csv, weight),
-        )
+    stat_dict = OrderedDict()
+
+    stat_dict["study"] = study
+    stat_dict["analysis_unit"] = analysis_unit
+    stat_dict["period"] = str(period)
+    stat_dict["sub_type"] = sub_type
+    stat_dict["dataset"] = file_json["name"].lower()
+    stat_dict["dataset_cs"] = file_json["name"]
+    stat_dict["variable"] = elem["name"]
+    stat_dict["name"] = elem["name"].lower()
+    stat_dict["name_cs"] = elem["name"]
+    stat_dict["label"] = elem["label"]
+    stat_dict["scale"] = scale
+    stat_dict["uni"] = uni(elem, elem_de, file_csv, weight)
     
     if elem["type"] == "number" or elem["type"] == "cat":
         data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
