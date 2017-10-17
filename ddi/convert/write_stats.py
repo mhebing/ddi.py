@@ -9,8 +9,11 @@ import math
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-templatepath = cur_dir + "/convert/template_stats.html"
-template_stats = "\"\"\"" + open(templatepath).read() + "\"\"\""
+templatepath_html = cur_dir + "/convert/template_stats_html.html"
+template_stats_html = "\"\"\"" + open(templatepath_html).read() + "\"\"\""
+
+templatepath_md = cur_dir + "/convert/template_stats_md.md"
+template_stats_md = open(templatepath_md).read()
    
 def uni_cat(elem, elem_de, file_csv, var_weight):
 
@@ -435,6 +438,7 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
             stat_dict["statistics"] = uni_statistics(elem, file_csv)
     else:
         stat_dict["statistics"] = uni_statistics(elem, file_csv)
+    # stat_dict["stat_dict"] = list(stat_dict["statistics"].items())
     
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
@@ -488,7 +492,7 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
         with open(filename, 'w') as yaml_file:
             yaml_file.write(yaml.dump(stat, default_flow_style=False))
     elif file_type == "html":
-        template = Template(template_stats)
+        template = Template(template_stats_html)
         stats_html = template.render(
             stat=stat,
             )
@@ -496,5 +500,14 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
         Html_file= open(filename,"w")
         Html_file.write(stats_html)
         Html_file.close()
+    elif file_type == "md":
+        template = Template(template_stats_md)
+        stats_md = template.render(
+            stat=stat,
+            )
+        print("write \"" + filename + "\"")
+        Md_file= open(filename,"w")
+        Md_file.write(stats_md)
+        Md_file.close()
     else:
         print("[ERROR] Unknown file type.")
