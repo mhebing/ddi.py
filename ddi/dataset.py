@@ -16,7 +16,7 @@ class Dataset:
         dataset.read_stata("../input/dataset.dta")
         dataset.test()
         dataset.write_stats("../output/dataset.json")
-        dataset.write_tdp("../output/dataset
+        dataset.write_tdp("../output/dataset.csv", "../output/dataset.json")
     """
 
     def __init__(self):

@@ -438,7 +438,6 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
             stat_dict["statistics"] = uni_statistics(elem, file_csv)
     else:
         stat_dict["statistics"] = uni_statistics(elem, file_csv)
-    # stat_dict["stat_dict"] = list(stat_dict["statistics"].items())
     
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
