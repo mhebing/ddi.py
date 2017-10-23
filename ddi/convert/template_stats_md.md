@@ -14,12 +14,9 @@
         frequencies: {{var["uni"]["frequencies"]}}
         missings: {{var["uni"]["missings"]}}
         statistics:
-        {{var["statistics"] }}
-        '''
-        {% for key, value in var["stat_dict"] %}
-            {{key}}: {{value}}
+        {% for key in var["statistics"] %}
+            {{key}} = {{var["statistics"][key]}}
         {% endfor %}
-        '''
     {% endif %}
     bi:
     :------------------:
