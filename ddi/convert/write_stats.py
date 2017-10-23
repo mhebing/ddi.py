@@ -419,10 +419,30 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
 
     stat_dict = OrderedDict()
 
-    stat_dict["study"] = study
-    stat_dict["analysis_unit"] = analysis_unit
-    stat_dict["period"] = str(period)
-    stat_dict["sub_type"] = sub_type
+    try:
+        stat_dict["study"] = file_json["study"]
+    except:
+        stat_dict["study"] = study
+    try:
+        stat_dict["analysis_unit"] = file_json["analysis_unit"]
+    except:
+        stat_dict["analysis_unit"] = analysis_unit
+    try:
+        stat_dict["period"] = file_json["period"]
+    except:
+        stat_dict["period"] = str(period)
+    try:
+        stat_dict["conceptual_dataset"] = file_json["conceptual_dataset"]
+    except:
+        pass
+    try:
+        stat_dict["sub_type"] = file_json["sub_type"]
+    except:
+        stat_dict["sub_type"] = sub_type
+    try:
+        stat_dict["boost"] = file_json["boost"]
+    except:
+        pass
     stat_dict["dataset"] = file_json["name"].lower()
     stat_dict["dataset_cs"] = file_json["name"]
     stat_dict["variable"] = elem["name"]
@@ -438,7 +458,6 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
             stat_dict["statistics"] = uni_statistics(elem, file_csv)
     else:
         stat_dict["statistics"] = uni_statistics(elem, file_csv)
-    # stat_dict["stat_dict"] = list(stat_dict["statistics"].items())
     
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
