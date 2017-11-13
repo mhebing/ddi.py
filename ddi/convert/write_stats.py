@@ -411,7 +411,7 @@ def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
     return bi
 
 
-def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study):
+def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, split, weight, analysis_unit, period, sub_type, study, log):
     scale = elem["type"][0:3]
     
     if type(sub_type) == np.float64 and math.isnan(sub_type) == True:
@@ -451,6 +451,12 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
     stat_dict["label"] = elem["label"]
     stat_dict["scale"] = scale
     stat_dict["uni"] = uni(elem, elem_de, file_csv, weight)
+    stat_dict["error"] = "No Errors"
+    
+    try:
+        stat_dict["error"] = log[file_json["name"]]
+    except:
+        pass
     
     if elem["type"] == "number" or elem["type"] == "cat":
         data_wm = file_csv[file_csv[elem["name"]]>=0][elem["name"]]
@@ -467,7 +473,7 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
 
     return stat_dict
 
-def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study):
+def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study, log):
     stat = []
     if metadata_de != "":
         elements = zip(
@@ -482,7 +488,7 @@ def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, wei
         try:
             stat.append(stat_dict(
                 dataset_name, elem, elem_de, data, metadata, metadata_de, split, 
-                weight, analysis_unit, period, sub_type, study
+                weight, analysis_unit, period, sub_type, study, log
             ))
             if vistest!="":
                 write_vistest(stat[-1], dataset_name, elem["name"], vistest)
@@ -498,10 +504,10 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     with open("".join((vistest, vistest_name)), "w") as json_file:
         json.dump(stat, json_file, indent=2)
     
-def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", metadata_de="", vistest=""):
+def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", metadata_de="", vistest="", log= ""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
     split = [split]
-    stat = generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study)
+    stat = generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study, log)
     if file_type == "json":
         print("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:
@@ -522,7 +528,7 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
     elif file_type == "md":
         template = Template(template_stats_md)
         stats_md = template.render(
-            stat=stat,
+            stat=[(x, json.dumps(x)) for x in stat],
             )
         print("write \"" + filename + "\"")
         Md_file= open(filename,"w")
