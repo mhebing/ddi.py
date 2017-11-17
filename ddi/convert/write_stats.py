@@ -359,6 +359,8 @@ def uni(elem, elem_de, file_csv, var_weight):
 def bi(base, elem, elem_de, scale, file_csv, file_json, split, weight):
     # split: variable for bi-variate analysis
     # base: variable for bi-variate analysis (every variable except split)
+
+    
     categories = OrderedDict()
 
     for j, temp in enumerate(file_json["resources"][0]["schema"]["fields"]):
@@ -468,7 +470,7 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
 
-    if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="[nan]":
+    if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="nan":
         stat_dict["bi"] = bi(elem["name"], elem, elem_de, scale, file_csv, file_json, split, weight)
 
     return stat_dict
@@ -506,7 +508,6 @@ def write_vistest(stat, dataset_name, var_name, vistest):
     
 def write_stats(data, metadata, filename, file_type="json", split="", weight="", analysis_unit="", period="", sub_type="", study="", metadata_de="", vistest="", log= ""):
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
-    split = [split]
     stat = generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study, log)
     if file_type == "json":
         print("write \"" + filename + "\"")    
