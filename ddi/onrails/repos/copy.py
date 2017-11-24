@@ -9,12 +9,12 @@ def f(filename, target = None):
 def study():
     os.system("cp metadata/study.md ddionrails")
 
-def bibtex(input_format="utf8"):
+def bibtex(input_format="latin1"):
     if input_format == "utf8":
         os.system("cp metadata/bibtex.bib ddionrails")
     elif input_format == "latin1":
         os.system("cp metadata/bibtex.bib ddionrails")
-        os.system("recode l1..utf8 ddionrails/bibtex.bib")
+        #os.system("recode l1..utf8 ddionrails/bibtex.bib")
     else:
         raise Exception("Invalid input_format")
 
