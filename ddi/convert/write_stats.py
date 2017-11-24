@@ -34,9 +34,9 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
             labels.append(value["label"])
             labels_de.append(value_de["label"])
             if value["value"]>=0:
-                missings.append("false")
+                missings.append("False")
             else:
-                missings.append("true")
+                missings.append("True")
             values.append(value["value"]) 
     else:
         value_count = file_csv[elem["name"]].value_counts()
@@ -47,9 +47,9 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
                 frequencies.append(0)
             labels.append(value["label"])
             if value["value"]>=0:
-                missings.append("false")
+                missings.append("False")
             else:
-                missings.append("true")
+                missings.append("True")
             values.append(value["value"])
     '''
     missing_count = sum(i<0 for i in file_csv[elem["name"]])
@@ -469,9 +469,11 @@ def stat_dict(dataset_name, elem, elem_de, file_csv, file_json, file_de_json, sp
     
     if elem_de != "":
         stat_dict["label_de"] = elem_de["label"]
-
-    if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="nan":
-        stat_dict["bi"] = bi(elem["name"], elem, elem_de, scale, file_csv, file_json, split, weight)
+    try:
+        if elem["name"] not in split and split!=[np.nan] and split!=[""] and str(split)!="nan":
+            stat_dict["bi"] = bi(elem["name"], elem, elem_de, scale, file_csv, file_json, split, weight)
+    except:
+        pass
 
     return stat_dict
 
