@@ -90,7 +90,7 @@ class Parser:
             ].iloc[0]
             var_dict["analysis_unit"] = str(d.get("analysis_unit_name"))
             var_dict["sub_type"] = str(d.get("conceptual_dataset_name"))
-            var_dict["boost"] = str(d.get("boost"))
+            var_dict["boost"] = str(d.get("boost", "1"))
             try:
                 var_dict["period"] = "%.0f" % d.get("period_name")
             except:
@@ -117,7 +117,20 @@ class Parser:
         result["labels"] = []
         result["missings"] = []
         result["values"] = []
+        int_cats = []
+        str_cats = []
         for xml_cat in xml_var.findall("catgry"):
+            value = xml_cat.findtext("catValu")
+            try:
+                v = int(value)
+                int_cats.append((v, xml_cat,))
+            except:
+                str_cats.append((value, xml_cat,))
+        xml_cats = [
+            x[1] for x in
+            sorted(int_cats, key=lambda x: x[0]) + sorted(str_cats, key=lambda x: x[0])
+        ]
+        for xml_cat in xml_cats:
             try:
                 result["frequencies"].append(int(xml_cat.findtext("catStat")))
             except:
