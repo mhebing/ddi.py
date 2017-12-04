@@ -104,12 +104,7 @@ class Parser:
         label = "label_%s" % language
         labels = "labels_%s" % language
         self.datasets[dataset][variable][label] = xml_var.findtext("labl", default="")
-        if len(xml_var.findall("catgry")) > 0:
-            self.datasets[dataset][variable]["categories"][labels] = []
-        for xml_cat in xml_var.findall("catgry"):
-            self.datasets[dataset][variable]["categories"][labels].append(
-                xml_cat.findtext("labl", default="")
-            )
+        self.datasets[dataset][variable]["categories"][labels] = self._get_categories(xml_var)["labels"]
 
     def _get_categories(self, xml_var):
         result = OrderedDict()
