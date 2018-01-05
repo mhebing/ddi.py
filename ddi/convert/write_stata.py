@@ -3,6 +3,9 @@ import os, sys
 import re
 import pandas as pd
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 template_do = """
 clear
@@ -26,7 +29,7 @@ label values {{ x["name"].lower() }} {{ x["name"].lower() }}_label
 
 def save_do(output_do, do):
 
-    print("write \"" + output_do + "\"")
+    logger.info("write \"" + output_do + "\"")
     with open(os.path.join(output_do), "w") as field1:
         field1.write(do)
 

@@ -2,6 +2,9 @@ import re
 import pandas as pd
 import numpy as np
 import os,sys, yaml, csv
+import logging
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath("../../../ddi.py"))
 from ddi.dataset import Dataset
@@ -17,7 +20,7 @@ def stata_to_statistics(study_name, input_csv, input_path, output_path, input_pa
         try:
             d1.read_stata(input_path + data + ".dta")
         except:
-            print("Unable to find " + data + ".dta in " + input_path + ".")
+            logger.warning("Unable to find " + data + ".dta in " + input_path + ".")
             continue
         
         metadata_de=""
@@ -27,7 +30,7 @@ def stata_to_statistics(study_name, input_csv, input_path, output_path, input_pa
                 d2.read_stata(input_path_de + data + ".dta")
                 metadata_de=d2.metadata
             except:
-                print("Unable to find " + data + ".dta in " + input_path_de + ".")
+                logger.warning("Unable to find " + data + ".dta in " + input_path_de + ".")
                 continue
 
         d1.write_stats(

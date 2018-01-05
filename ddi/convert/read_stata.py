@@ -1,6 +1,7 @@
 import re
 import pandas as pd
 import numpy as np
+import logging
 
 def cat_values(var, varscale, df_data, data):
     
@@ -114,7 +115,7 @@ def parse_dataset(data, stata_name):
     return d, m
 
 def read_stata(stata_name):
-    print("read \"" + stata_name + "\"")
+    logger.info("read \"" + stata_name + "\"")
     data = pd.read_stata(
         stata_name,
         iterator=True,

@@ -6,6 +6,9 @@ import json, yaml
 import numpy as np
 import pandas as pd
 import math
+import logging
+
+logger = logging.getLogger(__name__)
 
 cur_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
@@ -53,7 +56,7 @@ def uni_cat(elem, elem_de, file_csv, var_weight):
             values.append(value["value"])
     '''
     missing_count = sum(i<0 for i in file_csv[elem["name"]])
-    print(elem["name"])
+    logger.info(elem["name"])
     '''
 
     cat_dict = OrderedDict([
@@ -497,12 +500,12 @@ def generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, wei
             if vistest!="":
                 write_vistest(stat[-1], dataset_name, elem["name"], vistest)
         except:
-            print("[ERROR] in parsing %s" % elem)
+            logger.error("[ERROR] in parsing %s" % elem)
     return stat
     
 def write_vistest(stat, dataset_name, var_name, vistest):
     vistest_name = "".join((dataset_name, "_", var_name, ".json"))
-    print("write \"" + vistest_name + "\" in \"" + vistest + "\"")
+    logger.info("write \"" + vistest_name + "\" in \"" + vistest + "\"")
     if not os.path.exists(vistest):
         os.makedirs(vistest)
     with open("".join((vistest, vistest_name)), "w") as json_file:
@@ -512,11 +515,11 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
     dataset_name = re.search('^.*\/([^-]*)\..*$', filename).group(1)
     stat = generate_stat(dataset_name, data, metadata, metadata_de, vistest, split, weight, analysis_unit, period, sub_type, study, log)
     if file_type == "json":
-        print("write \"" + filename + "\"")    
+        logger.info("write \"" + filename + "\"")    
         with open(filename, 'w') as json_file:
             json.dump(stat, json_file, indent=2)
     elif file_type == "yaml":
-        print("write \"" + filename + "\"")
+        logger.info("write \"" + filename + "\"")
         with open(filename, 'w') as yaml_file:
             yaml_file.write(yaml.dump(stat, default_flow_style=False))
     elif file_type == "html":
@@ -524,7 +527,7 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
         stats_html = template.render(
             stat=stat,
             )
-        print("write \"" + filename + "\"")
+        logger.info("write \"" + filename + "\"")
         Html_file= open(filename,"w")
         Html_file.write(stats_html)
         Html_file.close()
@@ -533,9 +536,9 @@ def write_stats(data, metadata, filename, file_type="json", split="", weight="",
         stats_md = template.render(
             stat=[(x, json.dumps(x)) for x in stat],
             )
-        print("write \"" + filename + "\"")
+        logger.info("write \"" + filename + "\"")
         Md_file= open(filename,"w")
         Md_file.write(stats_md)
         Md_file.close()
     else:
-        print("[ERROR] Unknown file type.")
+        logger.error("[ERROR] Unknown file type.")
