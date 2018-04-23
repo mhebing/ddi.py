@@ -7,7 +7,8 @@ ddi.py documentation
    ddi/index
    test/index
 
-
+.. automodule:: ddi.dataset
+   :members:
 
 Indices and tables
 ==================
