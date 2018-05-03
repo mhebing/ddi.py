@@ -1,2 +1,2 @@
-stata_to_statistics
-===================
+stata_to_statistics.py
+======================
