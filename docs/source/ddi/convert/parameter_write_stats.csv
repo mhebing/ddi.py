@@ -1,0 +1,13 @@
+data,Dataset,
+metadata,Metadata,
+filename,Name of the output file,
+file_type (optional),"save stats as json, yaml or html; default is json",
+split (optional),contains variable(s) for bivariate statistics,empty
+weight (optional),contains weight variable,empty
+analysis_unit (optional), ,
+period (optional), ,
+sub_type (optional), ,
+study (optional), ,
+metadata_de (optional), ,
+vistest (optional),"contains path for a vistest file, no vistest if remained empty",empty
+log (optional),contains path for a log file,empty
