@@ -135,7 +135,7 @@ class Parser:
             else:
                 result["missings"].append(False)
             value = xml_cat.findtext("catValu")
-            result["values"].append(value)
+            result["values"].append(value.strip())
             label = xml_cat.findtext("labl")
             if label:
                 result["labels"].append(label)
@@ -149,7 +149,7 @@ class Parser:
         result["values"] = []
         for xml_stat in xml_var.findall("sumStat"):
             result["names"].append(xml_stat.get("type"))
-            result["values"].append(xml_stat.text)
+            result["values"].append(xml_stat.text.strip())
         return result
 
     def write_json(self):
