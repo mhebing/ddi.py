@@ -5,4 +5,5 @@ ddi.py
     :maxdepth: 2
 
     convert/index
+    onrails/index
     dataset
