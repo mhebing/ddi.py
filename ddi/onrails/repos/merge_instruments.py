@@ -1,3 +1,8 @@
+"""
+This module contains a set of fuctions to generate the JSON formats, as expected by DDI on Rails 2, from ``questions.csv`` and ``answers.csv``
+
+The ``main()`` function execute the relevant methods in the correct order.
+"""
 import os
 import json, glob
 import yaml

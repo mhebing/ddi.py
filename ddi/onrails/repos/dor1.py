@@ -1,6 +1,21 @@
+"""
+This module supports studies, which already prepared metadata for the first
+version of DDI on Rails. The functions in this module convert the input formats
+from DDI on Rails (v1) to the input formats for DDI on Rails 2.
+
+All studies are expected to use the new data formats. Therefore, all functions
+in this module are DEPRECATED.
+"""
 import pandas as pd
 
 def lower_all_names(x):
+    """
+    DEPRECATED
+
+    Helper: Set all values in a dict to lowercase where the key includes
+    "_name". DDI on Rails expects all name fields to be unique in their
+    lowercase form.
+    """
     def lower_x(x):
         try:
             return x.lower()
@@ -10,6 +25,12 @@ def lower_all_names(x):
     x.ix[ : , names] = x.ix[ : , names].applymap(lower_x)
 
 def datasets():
+    """
+    DEPRECATED
+
+    Convert the version 1 ``logical_datasets.csv`` to the version 2
+    ``datasets.csv``.
+    """
     x = pd.read_csv("metadata/logical_datasets.csv")
     x.rename(columns={
         "study":"study_name",
@@ -22,6 +43,12 @@ def datasets():
     x.to_csv("ddionrails/datasets.csv", index=False)
 
 def variables():
+    """
+    DEPRECATED
+
+    Convert the version 1 ``logical_variables.csv`` to the version 2
+    ``variables.csv``.
+    """
     x = pd.read_csv("metadata/logical_variables.csv")
     x.rename(columns={
         "study":"study_name",
@@ -38,6 +65,12 @@ def variables():
     x.to_csv("ddionrails/variables.csv", index=False)
 
 def transformations():
+    """
+    DEPRECATED
+
+    Convert the version 1 ``generations.csv`` to the version 2
+    ``transformations.csv``.
+    """
     x = pd.read_csv("metadata/generations.csv")
     x.rename(columns={
         "output_study":"target_study_name",
@@ -51,6 +84,13 @@ def transformations():
     x.to_csv("ddionrails/transformations.csv", index=False)
 
 def questions_variables():
+    """
+    DEPRECATED
+
+    Extract connections between questions and variables from the version 1
+    ``logical_variables.csv`` and write them to the version 2
+    ``questions_variables.csv``.
+    """
     x = pd.read_csv("metadata/logical_variables.csv")
     x.rename(columns={
         "study":"study_name",
@@ -66,6 +106,13 @@ def questions_variables():
     x.to_csv("ddionrails/questions_variables.csv", index=False)
 
 def concepts_questions():
+    """
+    DEPRECATED
+
+    Extract connections between concepts and questions from the version 1
+    ``questions.csv`` and write them to the version 2
+    ``concepts_questions.csv``.
+    """
     x = pd.read_csv("metadata/questions.csv")
     x.rename(columns={
         "study":"study_name",
