@@ -16,6 +16,8 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('../..'))
 sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
+sys.path.insert(0, os.path.abspath("../ddi"))
+sys.path.insert(0, os.path.abspath("../../ddi"))
 
 autodoc_mock_imports = ['ddi.convert.read_tdp', 'convert.read_stata', 'convert.write_stats', 'convert.write_tdp', 'convert.write_stata', 'test_values']
 
