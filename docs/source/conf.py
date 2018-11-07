@@ -14,19 +14,16 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('../..'))
-sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
-sys.path.insert(0, os.path.abspath("../ddi"))
-sys.path.insert(0, os.path.abspath("../../ddi"))
+sys.path.insert(0, os.path.abspath('../..'))
 
-autodoc_mock_imports = ['ddi.convert.read_tdp', 'convert.read_stata', 'convert.write_stats', 'convert.write_tdp', 'convert.write_stata', 'test_values']
+#autodoc_mock_imports = ['ddi.convert.read_tdp', 'convert.read_stata', 'convert.write_stats', 'convert.write_tdp', 'convert.write_stata', 'test_values', 'ddi.onrails.repos.topics']
 
 
 # -- Project information -----------------------------------------------------
 
 project = u'ddi.py documentation'
-copyright = u'2018, Marius Pahl'
-author = u'Marius Pahl'
+copyright = u'2018, German Institute for Economic Research (DIW Berlin)'
+author = u'Marcel Hebing and Marius Pahl'
 
 # The short X.Y version
 version = u''
@@ -46,21 +43,21 @@ release = u'1.0.0'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.imgmath',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
+    #'sphinx.ext.doctest',
+    #'sphinx.ext.intersphinx',
+    #'sphinx.ext.todo',
+    #'sphinx.ext.coverage',
+    #'sphinx.ext.imgmath',
+    #'sphinx.ext.ifconfig',
+    #'sphinx.ext.viewcode',
+    #'sphinx.ext.githubpages',
 ]
 
-import sys, os
-
-sys.path.insert(0, os.path.abspath('./exts'))
-
-extensions.append('hidden_code_block')
+#import sys, os
+#
+#sys.path.insert(0, os.path.abspath('./exts'))
+#
+#extensions.append('hidden_code_block')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
