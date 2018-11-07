@@ -4,12 +4,6 @@ onrails
 ddi/onrails contains a couple of modules to support data managers in preparing
 their metadata for the import in DDI on Rails.
 
-Module topics
--------------
-
-.. automodule:: ddi.onrails.repos.topics
-    :members:
-    :undoc-members:
 
 Module copy
 -----------
@@ -25,12 +19,6 @@ Module convert_r2ddi
     :members:
     :undoc-members:
 
-Module dor1
------------
-
-.. automodule:: ddi.onrails.repos.dor1
-    :members:
-    :undoc-members:
 
 Module extract_variables
 ------------------------
@@ -46,3 +34,16 @@ Module merge_instruments
     :members:
     :undoc-members:
 
+Module dor1 (DEPRECATED)
+------------------------
+
+.. automodule:: ddi.onrails.repos.dor1
+    :members:
+    :undoc-members:
+
+Module topics (DEPRECATED)
+--------------------------
+
+.. automodule:: ddi.onrails.repos.topics
+    :members:
+    :undoc-members:

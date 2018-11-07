@@ -1,4 +1,6 @@
 """
+DEPRECATED
+
 This module supports studies, which already prepared metadata for the first
 version of DDI on Rails. The functions in this module convert the input formats
 from DDI on Rails (v1) to the input formats for DDI on Rails 2.
