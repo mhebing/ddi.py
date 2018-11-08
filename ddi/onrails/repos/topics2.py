@@ -19,7 +19,7 @@ class Topic:
     ):
         self.name = name
         self.parent_name = parent_name
-        self.label = label
+        self.label = label if str(label) != "nan" else ""
         self.children = []
         self.concepts = []
         self.all_objects.append(self)
@@ -69,7 +69,7 @@ class Concept:
     ):
         self.name = name
         self.topic_name = topic_name
-        self.label = label
+        self.label = label if str(label) != "nan" else ""
         self.all_objects.append(self)
 
     def to_dict(self):
