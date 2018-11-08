@@ -83,7 +83,10 @@ class Concept:
     def add_concepts_to_topics(cls):
         for concept in cls.all_objects:
             topic = Topic.get_by_name(concept.topic_name)
-            topic.concepts.append(concept)
+            if topic:
+                topic.concepts.append(concept)
+            else:
+                print("Topic not found: %s" % concept.topic_name)
 
 
 class TopicParser:
