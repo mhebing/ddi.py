@@ -1,6 +1,7 @@
 import pandas as pd
-import numpy as np
+
 from .ddi import DDI
+
 
 class StataReader:
     """
@@ -11,6 +12,7 @@ class StataReader:
         stata_reader = StataReader("data/test.dta")
         ddi = stata_reader.ddi
     """
+
     def __init__(self, path):
         """Init with a path to a Stata file."""
         self.file_format = "Stata"
@@ -23,15 +25,12 @@ class StataReader:
 
     def _open_stata_file(self, path):
         stata_file = pd.read_stata(
-            path,
-            convert_categoricals=False,
-            order_categoricals=False,
-            iterator=True,
+            path, convert_categoricals=False, order_categoricals=False, iterator=True
         )
         return stata_file
 
     def _parse_meta(self, stata_file):
-        var_list = [dict(name=var, sn=sn) for sn, var in enumerate(stata_file.varlist) ]
+        var_list = [dict(name=var, sn=sn) for sn, var in enumerate(stata_file.varlist)]
 
         for sn, label in enumerate(stata_file.lbllist):
             label_dict = stata_file.value_labels()
@@ -43,14 +42,13 @@ class StataReader:
 
         for var in var_list:
             var["label"] = stata_file.variable_labels()[var["name"]]
-        return { var["name"]: var for var in var_list }
+        return {var["name"]: var for var in var_list}
 
     def _add_stata_data(self, path):
         stata_file = self._open_stata_file(path)
-        self.ddi.stata = stata_file.read(
-            convert_missing=True,
-        )
+        self.ddi.stata = stata_file.read(convert_missing=True)
         stata_file.close()
+
 
 def read_stata(path):
     """
