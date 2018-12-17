@@ -1,6 +1,7 @@
 import os
-from collections import OrderedDict
+
 import pandas as pd
+
 
 class Topic:
 
@@ -83,7 +84,7 @@ class Topic:
     def import_all(cls):
         cls.import_topics()
         cls.import_concepts()
-        print("[INFO] %s topics importet" %len(cls.all_topics))
-        print("[INFO] %s root topics" %len(cls.root_topics))
-        print("[INFO] %s missing parents" %len(cls.missing_parents))
+        print("[INFO] %s topics importet" % len(cls.all_topics))
+        print("[INFO] %s root topics" % len(cls.root_topics))
+        print("[INFO] %s missing parents" % len(cls.missing_parents))
         cls.export_markdown()
