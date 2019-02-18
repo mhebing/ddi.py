@@ -1,22 +1,16 @@
-import os
 import json
+import os
+
 import pandas as pd
 
-LANGUAGES = dict(
-    en="",
-    de="_de",
-)
+LANGUAGES = dict(en="", de="_de")
+
 
 class Topic:
 
     all_objects = []
 
-    def __init__(
-        self,
-        name=None,
-        parent_name=None,
-        label=None,
-    ):
+    def __init__(self, name=None, parent_name=None, label=None):
         self.name = name
         self.parent_name = parent_name
         self.label = label if str(label) != "nan" else ""
@@ -25,27 +19,27 @@ class Topic:
         self.all_objects.append(self)
 
     def to_dict(self):
-        children = [ x.to_dict() for x in self.children ]
-        children += [ x.to_dict() for x in self.concepts ]
+        children = [x.to_dict() for x in self.children]
+        children += [x.to_dict() for x in self.concepts]
         return dict(
             title=self.label,
             key="topic_%s" % self.name,
             type="topic",
             children=children,
         )
-            
+
     @classmethod
     def get_by_name(cls, name):
         """Get topic from all_objects by name"""
         try:
-            return [ x for x in cls.all_objects if x.name == name ][0]
+            return [x for x in cls.all_objects if x.name == name][0]
         except:
             return None
 
     @classmethod
     def get_root_topics(cls):
         """Return topics with no parents (== root topics)"""
-        return [ x for x in cls.all_objects if x.parent_name == None ]
+        return [x for x in cls.all_objects if x.parent_name == None]
 
     @classmethod
     def add_topics_to_parents(cls):
@@ -58,27 +52,18 @@ class Topic:
 
 
 class Concept:
-    
+
     all_objects = []
 
-    def __init__(
-        self,
-        name=None,
-        topic_name=None,
-        label=None
-    ):
+    def __init__(self, name=None, topic_name=None, label=None):
         self.name = name
         self.topic_name = topic_name
         self.label = label if str(label) != "nan" else ""
         self.all_objects.append(self)
 
     def to_dict(self):
-        return dict(
-            title=self.label,
-            key="concept_%s" % self.name,
-            type="concept"
-        )
-    
+        return dict(title=self.label, key="concept_%s" % self.name, type="concept")
+
     @classmethod
     def add_concepts_to_topics(cls):
         for concept in cls.all_objects:
@@ -95,12 +80,12 @@ class TopicParser:
 
         TopicParser().to_json()
     """
-    
+
     def __init__(
         self,
         topics_input_csv="metadata/topics.csv",
         concepts_input_csv="metadata/concepts.csv",
-        languages=["en", "de"]
+        languages=["en", "de"],
     ):
         self.topics_input_csv = topics_input_csv
         self.concepts_input_csv = concepts_input_csv
@@ -119,10 +104,9 @@ class TopicParser:
     def _create_json(self):
         result = []
         for language in self.languages:
-            result.append(dict(
-                language=language,
-                topics=self._convert_to_dict(language),
-            ))
+            result.append(
+                dict(language=language, topics=self._convert_to_dict(language))
+            )
         return result
 
     def _convert_to_dict(self, language):
@@ -148,7 +132,7 @@ class TopicParser:
         print("Language: %s" % language)
         print("Topics: %s" % len(Topic.all_objects))
         print("Concepts: %s" % len(Concept.all_objects))
-        result = [ topic.to_dict() for topic in Topic.get_root_topics() ]
+        result = [topic.to_dict() for topic in Topic.get_root_topics()]
         Topic.all_objects = []
         Concept.all_objects = []
         return result
