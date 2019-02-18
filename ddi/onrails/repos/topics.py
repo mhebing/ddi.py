@@ -1,90 +1,144 @@
+import json
 import os
 
 import pandas as pd
 
+LANGUAGES = dict(en="", de="_de")
+
 
 class Topic:
 
-    TOPICS_CSV_DEFAULT = "metadata/topics.csv"
-    CONCEPTS_CSV_DEFAULT = "metadata/concepts.csv"
-    TARGET_DIRECTORY_DEFAULT = "ddionrails/topics"
+    all_objects = []
 
-    all_topics = dict()
-    root_topics = dict()
-    missing_parents = dict()
-
-    def __init__(self, name, parent_name, label=""):
+    def __init__(self, name=None, parent_name=None, label=None):
         self.name = name
-        self.label = label
-        self.children = list()
-        self.concepts = dict()
-        cls = self.__class__
-        cls.all_topics[name] = self
-        if parent_name == "nan":
-            cls.root_topics[name] = self
-        elif parent_name in cls.all_topics.keys():
-            parent = cls.all_topics[parent_name]
-            parent.add_child(self)
-        else:
-            cls.missing_parents[name] = (name, parent_name, label)
+        self.parent_name = parent_name
+        self.label = label if str(label) != "nan" else ""
+        self.children = []
+        self.concepts = []
+        self.all_objects.append(self)
 
-    def add_child(self, child):
-        self.children.append(child)
-
-    def to_markdown(self, depth=1):
-        if depth == 1:
-            md = "---\ntopic: %s\nlabel: %s\n---\n\n#" % (self.name, self.label)
-        else:
-            md = "#" * depth
-        md += " %s [%s]\n\n" % (self.label, self.name)
-        for concept in sorted(self.concepts.items()):
-            md += "- {%s}: %s\n" % concept
-        md += "\n"
-        for child in self.children:
-            md += child.to_markdown(depth + 1)
-        return md
+    def to_dict(self):
+        children = [x.to_dict() for x in self.children]
+        children += [x.to_dict() for x in self.concepts]
+        return dict(
+            title=self.label,
+            key="topic_%s" % self.name,
+            type="topic",
+            children=children,
+        )
 
     @classmethod
-    def _retry_missing_parents(cls):
-        before_len = len(cls.missing_parents)
-        missing_parents = cls.missing_parents
-        cls.missing_parents = dict()
-        for name, object_tupel in missing_parents.items():
-            cls(*object_tupel)
-        if len(cls.missing_parents) < before_len:
-            cls._retry_missing_parents()
+    def get_by_name(cls, name):
+        """Get topic from all_objects by name"""
+        try:
+            return [x for x in cls.all_objects if x.name == name][0]
+        except:
+            return None
 
     @classmethod
-    def import_topics(cls, filename=TOPICS_CSV_DEFAULT):
-        topics = pd.read_csv(filename)
-        for sn, topic in topics.iterrows():
-            cls(str(topic["topic"]), str(topic["parent"]), str(topic["label"]))
-        cls._retry_missing_parents()
+    def get_root_topics(cls):
+        """Return topics with no parents (== root topics)"""
+        return [x for x in cls.all_objects if x.parent_name == None]
 
     @classmethod
-    def import_concepts(cls, filename=CONCEPTS_CSV_DEFAULT):
-        concepts = pd.read_csv(filename)
-        for sn, concept in concepts.iterrows():
+    def add_topics_to_parents(cls):
+        for topic in cls.all_objects:
             try:
-                topic = cls.all_topics[concept["topic_prefix"]]
-                topic.concepts[concept["concept"]] = concept["label"]
+                parent = Topic.get_by_name(topic.parent_name)
+                parent.children.append(topic)
             except:
-                print("[ERROR] Could not import concept %s" % concept["concept"])
+                pass
+
+
+class Concept:
+
+    all_objects = []
+
+    def __init__(self, name=None, topic_name=None, label=None):
+        self.name = name
+        self.topic_name = topic_name
+        self.label = label if str(label) != "nan" else ""
+        self.all_objects.append(self)
+
+    def to_dict(self):
+        return dict(title=self.label, key="concept_%s" % self.name, type="concept")
 
     @classmethod
-    def export_markdown(cls, target_directory=TARGET_DIRECTORY_DEFAULT):
-        print("[INFO] Write markdown files")
-        for key, topic in cls.root_topics.items():
-            if len(topic.children) > 0:
-                filename = os.path.join(target_directory, "%s.md" % key)
-                with open(filename, "w") as f:
-                    f.write(topic.to_markdown())
+    def add_concepts_to_topics(cls):
+        for concept in cls.all_objects:
+            topic = Topic.get_by_name(concept.topic_name)
+            if topic:
+                topic.concepts.append(concept)
+            else:
+                print("Topic not found: %s" % concept.topic_name)
 
-    @classmethod
-    def import_all(cls):
-        cls.import_topics()
-        cls.import_concepts()
-        print("[INFO] %s topics importet" % len(cls.all_topics))
-        print("[INFO] %s root topics" % len(cls.root_topics))
-        print("[INFO] %s missing parents" % len(cls.missing_parents))
-        cls.export_markdown()
+
+class TopicParser:
+    """
+    Generate ``topics.json`` from ``topics.csv`` and ``concepts.csv``::
+
+        TopicParser().to_json()
+    """
+
+    def __init__(
+        self,
+        topics_input_csv="metadata/topics.csv",
+        concepts_input_csv="metadata/concepts.csv",
+        languages=["en", "de"],
+    ):
+        self.topics_input_csv = topics_input_csv
+        self.concepts_input_csv = concepts_input_csv
+        self.topics_data = pd.read_csv(topics_input_csv)
+        self.concepts_data = pd.read_csv(concepts_input_csv)
+        self.languages = languages
+
+    def to_csv(self, topics_output_csv="ddionrails/topics.csv"):
+        os.system("cp %s %s" % (self.topics_input_csv, topics_output_csv))
+
+    def to_json(self, topics_output_json="ddionrails/topics.json"):
+        json_dict = self._create_json()
+        with open(topics_output_json, "w") as f:
+            f.write(json.dumps(json_dict))
+
+    def _create_json(self):
+        result = []
+        for language in self.languages:
+            result.append(
+                dict(language=language, topics=self._convert_to_dict(language))
+            )
+        return result
+
+    def _convert_to_dict(self, language):
+        for row in self.topics_data.to_dict("records"):
+            if str(row.get("parent_name")) == "nan":
+                parent_name = None
+            else:
+                parent_name = row.get("parent_name")
+            Topic(
+                name=row.get("name"),
+                label=row.get("label" + LANGUAGES[language], row.get("name")),
+                parent_name=parent_name,
+            )
+        for row in self.concepts_data.to_dict("records"):
+            if str(row.get("topic_name", "nan")) != "nan":
+                Concept(
+                    name=row.get("name"),
+                    topic_name=row.get("topic_name"),
+                    label=row.get("label" + LANGUAGES[language], row.get("name")),
+                )
+        Topic.add_topics_to_parents()
+        Concept.add_concepts_to_topics()
+        print("Language: %s" % language)
+        print("Topics: %s" % len(Topic.all_objects))
+        print("Concepts: %s" % len(Concept.all_objects))
+        result = [topic.to_dict() for topic in Topic.get_root_topics()]
+        Topic.all_objects = []
+        Concept.all_objects = []
+        return result
+
+
+if __name__ == "__main__":
+    tp = TopicParser()
+    tp.to_csv()
+    tp.to_json()
