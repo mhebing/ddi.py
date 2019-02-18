@@ -1,5 +1,7 @@
 from lxml.builder import ET
+
 import pandas as pd
+
 
 class DDI:
     """
@@ -27,10 +29,7 @@ class DDI:
 
     def _add_frequencies(self, var, varname, meta):
         if len(var.unique()) < 30:
-            counts = dict(var.value_counts(
-                dropna=False,
-                sort=False
-            ))
+            counts = dict(var.value_counts(dropna=False, sort=False))
             for x in counts.keys():
                 e = counts.pop(x)
                 try:
@@ -41,10 +40,7 @@ class DDI:
             meta["frequencies"] = counts
 
     def _add_basic_statistics(self, var, varname, meta):
-        statistics = dict(
-            count = len(var),
-            missing_cases = sum(pd.isnull(var)),
-        )
+        statistics = dict(count=len(var), missing_cases=sum(pd.isnull(var)))
         statistics["valid_cases"] = statistics["count"] - statistics["missing_cases"]
         try:
             statistics["var"] = var.var()
@@ -59,6 +55,7 @@ class Variable:
     """
     Variable
     """
+
     def __init__(self, data, meta):
         self.data = data
         self.meta = meta

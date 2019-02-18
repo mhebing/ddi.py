@@ -1,12 +1,15 @@
-import os, sys, glob, re
-import pandas as pd
-import csv
+import glob
+import os
+import re
+
 from lxml import etree
 
-GIP_RE = re.compile(r'([a-z]{2})(\d{2})')
+import pandas as pd
+
+GIP_RE = re.compile(r"([a-z]{2})(\d{2})")
+
 
 class XmlParser:
-
     def __init__(
         self,
         xml_path,
@@ -28,33 +31,29 @@ class XmlParser:
         xml_content = etree.parse(path)
         for xml_var in xml_content.findall("//var"):
             self._parse_xml_variable(xml_var)
-    
+
     def _parse_xml_variable(self, xml_var):
         dataset = xml_var.get("files").lower()
         variable = xml_var.get("ID").lower()
         concept = variable
         if self.study == "gip":
             concept = GIP_RE.sub("\\1", concept)
-        self.variables.append(dict(
-            study_name=self.study,
-            dataset_name=dataset,
-            variable_name=variable,
-            concept_namespace=self.study,
-            concept_name=concept,
-        ))
-        self.datasets.append(dict(
-            study_name=self.study,
-            dataset_name=dataset,
-        ))
-        self.concepts.append(dict(
-            concept_namespace=self.study,
-            concept_name=concept,
-        ))
+        self.variables.append(
+            dict(
+                study_name=self.study,
+                dataset_name=dataset,
+                variable_name=variable,
+                concept_namespace=self.study,
+                concept_name=concept,
+            )
+        )
+        self.datasets.append(dict(study_name=self.study, dataset_name=dataset))
+        self.concepts.append(dict(concept_namespace=self.study, concept_name=concept))
 
     def _csv_helper(self, file_name, content):
         data = pd.DataFrame(content).drop_duplicates()
         data.to_csv(file_name, index=False)
-    
+
     def _write_csv_files(self):
         if self.write_variables:
             self._csv_helper("ddionrails/variables.csv", self.variables)

@@ -1,16 +1,28 @@
-import glob, re, json, os
-import yaml
+import glob
+import json
+import os
+import re
 from collections import OrderedDict
+
+import yaml
 from lxml import etree
+
 import pandas as pd
 
-LANG_RE = re.compile(r'(\w{2})/[\w\d\-_]+.xml$', flags=re.IGNORECASE)
+LANG_RE = re.compile(r"(\w{2})/[\w\d\-_]+.xml$", flags=re.IGNORECASE)
+
 
 class Parser:
-
-    def __init__(self, study_name, r2ddi_path="r2ddi", version=None, primary_language="en",
-                 versions=["v1"], latest_version="v1",
-                 datasets_csv="ddionrails/datasets.csv"):
+    def __init__(
+        self,
+        study_name,
+        r2ddi_path="r2ddi",
+        version=None,
+        primary_language="en",
+        versions=["v1"],
+        latest_version="v1",
+        datasets_csv="ddionrails/datasets.csv",
+    ):
         """
         The ``version`` option is now DEPRECATED, pleas use the combination of
         ``versions`` (list) and ``latest_version`` from now on.
@@ -33,13 +45,17 @@ class Parser:
         self.run()
 
     def run(self):
-        primary_names = set(glob.glob(os.path.join(
-            self.path, self.latest_version, self.primary_language, "*.xml",
-        )))
+        primary_names = set(
+            glob.glob(
+                os.path.join(
+                    self.path, self.latest_version, self.primary_language, "*.xml"
+                )
+            )
+        )
         print(primary_names)
-        secondary_names = set(glob.glob(os.path.join(
-            self.path, self.latest_version, "*", "*.xml"
-        ))).difference(primary_names)
+        secondary_names = set(
+            glob.glob(os.path.join(self.path, self.latest_version, "*", "*.xml"))
+        ).difference(primary_names)
         primary_names = sorted(primary_names)
         secondary_names = sorted(secondary_names)
         for file_name in primary_names:
@@ -104,7 +120,9 @@ class Parser:
         label = "label_%s" % language
         labels = "labels_%s" % language
         self.datasets[dataset][variable][label] = xml_var.findtext("labl", default="")
-        self.datasets[dataset][variable]["categories"][labels] = self._get_categories(xml_var)["labels"]
+        self.datasets[dataset][variable]["categories"][labels] = self._get_categories(
+            xml_var
+        )["labels"]
 
     def _get_categories(self, xml_var):
         result = OrderedDict()
@@ -118,12 +136,13 @@ class Parser:
             value = xml_cat.findtext("catValu")
             try:
                 v = int(value)
-                int_cats.append((v, xml_cat,))
+                int_cats.append((v, xml_cat))
             except:
-                str_cats.append((value, xml_cat,))
+                str_cats.append((value, xml_cat))
         xml_cats = [
-            x[1] for x in
-            sorted(int_cats, key=lambda x: x[0]) + sorted(str_cats, key=lambda x: x[0])
+            x[1]
+            for x in sorted(int_cats, key=lambda x: x[0])
+            + sorted(str_cats, key=lambda x: x[0])
         ]
         for xml_cat in xml_cats:
             try:
@@ -166,7 +185,3 @@ class Parser:
 
     def _read_datasets_csv(self, path):
         self.datasets_csv = pd.read_csv(path)
-
-
-
-

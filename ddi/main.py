@@ -8,7 +8,7 @@ import pandas as pd
 ar = pd.read_stata("input/ah-raw.dta", iterator=True, convert_categoricals=False)
 
 a_data = ar.read()
-a_vars = [dict(name=var, sn=sn) for sn, var in enumerate(ar.varlist) ]
+a_vars = [dict(name=var, sn=sn) for sn, var in enumerate(ar.varlist)]
 
 for sn, label in enumerate(ar.lbllist):
     label_dict = ar.value_labels()
@@ -20,4 +20,3 @@ for sn, label in enumerate(ar.lbllist):
 
 for var in a_vars:
     var["label"] = ar.variable_labels()[var["name"]]
-

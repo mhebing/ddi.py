@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "ddi"
+version = "0.1.0"
+description = "DDI related tools"
+authors = [
+    "Marcel Hebing <marcel@ddionrails.org>"
+]
+readme = 'README.md'  # Markdown files are supported
+repository = "https://github.com/ddionrails/ddi.py"
+homepage = "http://ddionrails.org"
+keywords = ['ddi']
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+jinja2 = "^2.10"
+lxml = "^4.2"
+pandas = "^0.23.4"
+pyyaml = "^3.13"
+scipy = "^1.1"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.0"
+pytest-cov = "^2.6"
+
+
+[tool.poetry.scripts]

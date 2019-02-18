@@ -5,3 +5,5 @@ _build
 *~
 *.swp
 *.pyc
+.directory
+.idea/
