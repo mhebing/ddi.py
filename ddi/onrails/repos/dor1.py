@@ -30,30 +30,31 @@ def datasets():
 
 def variables():
     x = pd.read_csv("metadata/logical_variables.csv")
-    x.rename(
-        columns={
-            "study": "study_name",
-            "dataset": "dataset_name",
-            "variable": "variable_name",
-            "concept": "concept_name",
-        },
-        inplace=True,
+
+    RENAME_COLUMNS = {
+        "study": "study_name",
+        "dataset": "dataset_name",
+        "variable": "variable_name",
+        "concept": "concept_name",
+    }
+    x.rename(columns=RENAME_COLUMNS, inplace=True)
+
+    UNIQUE_ROW_KEYS = (
+        "study_name",
+        "dataset_name",
+        "variable_name",
+        "label",
+        "description",
+        "description_long",
     )
-    valid = (
-        x.ix[
-            :,
-            (
-                "study_name",
-                "dataset_name",
-                "variable_name",
-                "label",
-                "description",
-                "description_long",
-            ),
-        ].duplicated()
-        == False
-    )
-    x = x.ix[valid]
+    try:
+        x.drop_duplicates(subset=UNIQUE_ROW_KEYS, inplace=True)
+    except KeyError:
+        x["label"] = None
+        x["description"] = None
+        x["description_long"] = None
+        x.drop_duplicates(subset=UNIQUE_ROW_KEYS, inplace=True)
+
     lower_all_names(x)
     x.to_csv("ddionrails/variables.csv", index=False)
 
