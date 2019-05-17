@@ -104,6 +104,7 @@ class InstrumentParser:
             item = OrderedDict(item.dropna())
             instrument_name = item["questionnaire"]
             question_name = item["question"]
+            image_url = item.get("image_url", "")
             if "item" in item.keys():
                 item_name = item["item"]
             else:
@@ -121,6 +122,7 @@ class InstrumentParser:
                 if not "label" in question and "text" in item:
                     question["label"] = item["text"]
                 question["items"] = OrderedDict()
+                question["image_url"] = image_url
                 question["sn"] = len(instrument_questions)
                 question["instrument"] = item["questionnaire"]
                 question["study"] = item["study"]
