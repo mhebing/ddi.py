@@ -78,8 +78,8 @@ class Parser:
                 self._parse_xml_var(xml_var)
 
     def _parse_xml_var(self, xml_var):
-        dataset = xml_var.get("files").lower()
-        variable = xml_var.get("ID").lower()
+        dataset = xml_var.get("files")
+        variable = xml_var.get("ID")
         var_dict = OrderedDict()
         var_dict["study"] = self.study_name
         var_dict["name"] = variable
@@ -115,8 +115,8 @@ class Parser:
             pass
 
     def _variable_translation(self, xml_var, language):
-        dataset = xml_var.get("files").lower()
-        variable = xml_var.get("ID").lower()
+        dataset = xml_var.get("files")
+        variable = xml_var.get("ID")
         label = "label_%s" % language
         labels = "labels_%s" % language
         self.datasets[dataset][variable][label] = xml_var.findtext("labl", default="")
