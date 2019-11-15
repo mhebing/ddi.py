@@ -109,7 +109,7 @@ def write_json(instruments):
     os.system("rm -r ddionrails/instruments; mkdir -p ddionrails/instruments")
     for instrument_name, instrument in instruments.items():
         with open("ddionrails/instruments/%s.json" % instrument_name, "w") as f:
-            json.dump(instrument, f, indent=2, ensure_ascii=False)
+            json.dump(instrument, f, indent=2)
 
 
 def write_yaml(instruments):
