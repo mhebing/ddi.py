@@ -33,8 +33,8 @@ class XmlParser:
             self._parse_xml_variable(xml_var)
 
     def _parse_xml_variable(self, xml_var):
-        dataset = xml_var.get("files").lower()
-        variable = xml_var.get("ID").lower()
+        dataset = xml_var.get("files")
+        variable = xml_var.get("ID")
         concept = variable
         if self.study == "gip":
             concept = GIP_RE.sub("\\1", concept)
