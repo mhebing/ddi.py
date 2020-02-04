@@ -1,15 +1,17 @@
 import os
-
+from shutil import copy
 
 def f(filename, target=None):
     if not target:
         target = filename
-    os.system("cp metadata/%s ddionrails/%s" % (filename, target))
+    src = os.path.join("metadata", filename)
+    dst = os.path.join("ddionrails", target)
+    copy(src, dst)
+    print("Copy %s to %s" % (src, dst))
 
 
 def study():
-    os.system("cp metadata/study.md ddionrails")
-
+    f("study.md")
 
 def bibtex(input_format="latin1"):
     if input_format == "utf8":
