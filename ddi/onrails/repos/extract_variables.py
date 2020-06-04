@@ -43,12 +43,11 @@ class XmlParser:
                 study_name=self.study,
                 dataset_name=dataset,
                 variable_name=variable,
-                concept_namespace=self.study,
                 concept_name=concept,
             )
         )
         self.datasets.append(dict(study_name=self.study, dataset_name=dataset))
-        self.concepts.append(dict(concept_namespace=self.study, concept_name=concept))
+        self.concepts.append(dict(name=concept))
 
     def _csv_helper(self, file_name, content):
         data = pd.DataFrame(content).drop_duplicates()
