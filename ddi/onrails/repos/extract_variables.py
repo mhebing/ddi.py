@@ -6,7 +6,7 @@ from lxml import etree
 
 import pandas as pd
 
-GIP_RE = re.compile(r"([a-z]{2})(\d{2})")
+GIP_RE = re.compile(r"((exp)?(rnd)?\w{2})(\d{2})(\d{3}.*)", flags=re.IGNORECASE)
 
 
 class XmlParser:
@@ -37,7 +37,7 @@ class XmlParser:
         variable = xml_var.get("ID")
         concept = variable
         if self.study == "gip":
-            concept = GIP_RE.sub("\\1", concept)
+            concept = GIP_RE.sub("\\1xx\\5", concept)
         self.variables.append(
             dict(
                 study_name=self.study,
