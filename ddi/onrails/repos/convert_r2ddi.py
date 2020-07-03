@@ -167,4 +167,4 @@ class Parser:
         os.system("rm -r ddionrails/datasets; mkdir -p ddionrails/datasets")
         for dataset_name, dataset in self.datasets.items():
             with open(f"ddionrails/datasets/{dataset_name}.json", "w") as outfile:
-                json.dump(list(dataset.values()), outfile, indent=2, ensure_ascii=False)
+                json.dump(list(dataset.values()), outfile, indent=2)#, ensure_ascii=False)
