@@ -127,7 +127,7 @@ class Parser:
                 # set value to the smallest number Python knows.
                 # ensures this gets sorted to the end of other missing values.
                 value = INT_MIN
-                label = value
+                label = ". (SYSMIS)"
             values.append(value)
             if label:
                 labels.append(label)
